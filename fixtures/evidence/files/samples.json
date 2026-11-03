@@ -1,0 +1,7 @@
+[
+  { "id": "docket", "title": "Photo of a handwritten delivery docket", "kind": "image", "mime": "image/png", "fileName": "docket-rossi-mill.png", "uploader": "Rossi Mill" },
+  { "id": "voice", "title": "Voice note in Spanish about a freight bill", "kind": "audio", "mime": "audio/wav", "fileName": "voice-note-ortega.wav", "uploader": "Ortega Trucking" },
+  { "id": "chat", "title": "WhatsApp chat where the amount gets corrected", "kind": "image", "mime": "image/png", "fileName": "chat-corner-cafe.png", "uploader": "Corner Cafe" },
+  { "id": "pdf", "title": "PDF invoice with two line items", "kind": "pdf", "mime": "application/pdf", "fileName": "invoice-GVD-1077.pdf", "uploader": "Green Valley Dairy" },
+  { "id": "email", "title": "Email from the accountant", "kind": "text", "mime": "text/plain", "fileName": "email-lee-patel.txt", "uploader": "Lee & Patel Accounting" }
+]

@@ -1,0 +1,10 @@
+{
+  "name": "untangle",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.1.0",
+  "scripts": {
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

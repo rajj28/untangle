@@ -1,0 +1,269 @@
+{
+ "businesses": [
+  {
+   "id": "b1",
+   "name": "Rosa's Bakery"
+  },
+  {
+   "id": "b2",
+   "name": "Rossi Mill"
+  },
+  {
+   "id": "b3",
+   "name": "Ortega Trucking"
+  },
+  {
+   "id": "b4",
+   "name": "Corner Cafe"
+  },
+  {
+   "id": "b5",
+   "name": "Green Valley Dairy"
+  },
+  {
+   "id": "b6",
+   "name": "Bean & Leaf Roasters"
+  },
+  {
+   "id": "b7",
+   "name": "Main St Print Shop"
+  },
+  {
+   "id": "b8",
+   "name": "Sparkle Cleaning Co"
+  },
+  {
+   "id": "b9",
+   "name": "Lee & Patel Accounting"
+  }
+ ],
+ "invoices": [
+  {
+   "id": "i1",
+   "debtor": "b1",
+   "creditor": "b2",
+   "amount": 300000,
+   "item": "Bread flour, 40 × 25 kg bags",
+   "cleared": 250000
+  },
+  {
+   "id": "i2",
+   "debtor": "b2",
+   "creditor": "b3",
+   "amount": 240000,
+   "item": "Freight: October grain deliveries",
+   "cleared": 240000
+  },
+  {
+   "id": "i3",
+   "debtor": "b3",
+   "creditor": "b1",
+   "amount": 280000,
+   "item": "Catering for the depot open day",
+   "cleared": 280000
+  },
+  {
+   "id": "i4",
+   "debtor": "b4",
+   "creditor": "b1",
+   "amount": 120000,
+   "item": "Pastries, October standing order",
+   "cleared": 10000
+  },
+  {
+   "id": "i5",
+   "debtor": "b4",
+   "creditor": "b6",
+   "amount": 160000,
+   "item": "House espresso blend, 60 kg",
+   "cleared": 160000
+  },
+  {
+   "id": "i6",
+   "debtor": "b4",
+   "creditor": "b5",
+   "amount": 90000,
+   "item": "Whole milk and cream, October",
+   "cleared": 90000
+  },
+  {
+   "id": "i7",
+   "debtor": "b1",
+   "creditor": "b5",
+   "amount": 120000,
+   "item": "Butter and cream, October",
+   "cleared": 120000
+  },
+  {
+   "id": "i8",
+   "debtor": "b5",
+   "creditor": "b3",
+   "amount": 160000,
+   "item": "Refrigerated freight, October",
+   "cleared": 160000
+  },
+  {
+   "id": "i9",
+   "debtor": "b6",
+   "creditor": "b3",
+   "amount": 120000,
+   "item": "Green coffee haulage from port",
+   "cleared": 120000
+  },
+  {
+   "id": "i10",
+   "debtor": "b6",
+   "creditor": "b7",
+   "amount": 80000,
+   "item": "Printed coffee bags, 5,000 units",
+   "cleared": 80000
+  },
+  {
+   "id": "i11",
+   "debtor": "b7",
+   "creditor": "b6",
+   "amount": 40000,
+   "item": "Office coffee subscription",
+   "cleared": 40000
+  },
+  {
+   "id": "i12",
+   "debtor": "b4",
+   "creditor": "b7",
+   "amount": 65000,
+   "item": "Menu boards and loyalty cards",
+   "cleared": 65000
+  },
+  {
+   "id": "i13",
+   "debtor": "b4",
+   "creditor": "b8",
+   "amount": 40000,
+   "item": "Deep clean, kitchen and dining room",
+   "cleared": 0
+  },
+  {
+   "id": "i14",
+   "debtor": "b1",
+   "creditor": "b8",
+   "amount": 70000,
+   "item": "Weekly bakery cleaning, October",
+   "cleared": 10000
+  },
+  {
+   "id": "i15",
+   "debtor": "b7",
+   "creditor": "b8",
+   "amount": 55000,
+   "item": "Shop floor cleaning",
+   "cleared": 55000
+  },
+  {
+   "id": "i16",
+   "debtor": "b2",
+   "creditor": "b9",
+   "amount": 140000,
+   "item": "Q3 bookkeeping and payroll",
+   "cleared": 60000
+  },
+  {
+   "id": "i17",
+   "debtor": "b3",
+   "creditor": "b9",
+   "amount": 60000,
+   "item": "Fleet tax filing",
+   "cleared": 60000
+  },
+  {
+   "id": "i18",
+   "debtor": "b5",
+   "creditor": "b9",
+   "amount": 40000,
+   "item": "Q3 bookkeeping",
+   "cleared": 0
+  },
+  {
+   "id": "i19",
+   "debtor": "b8",
+   "creditor": "b9",
+   "amount": 100000,
+   "item": "Payroll service, October",
+   "cleared": 100000
+  },
+  {
+   "id": "i20",
+   "debtor": "b9",
+   "creditor": "b1",
+   "amount": 90000,
+   "item": "Client event catering",
+   "cleared": 90000
+  },
+  {
+   "id": "i21",
+   "debtor": "b9",
+   "creditor": "b4",
+   "amount": 95000,
+   "item": "Team coffee account, October",
+   "cleared": 95000
+  },
+  {
+   "id": "i22",
+   "debtor": "b9",
+   "creditor": "b8",
+   "amount": 35000,
+   "item": "Office cleaning, October",
+   "cleared": 35000
+  },
+  {
+   "id": "i23",
+   "debtor": "b3",
+   "creditor": "b4",
+   "amount": 180000,
+   "item": "Driver coffee and breakfast tab",
+   "cleared": 180000
+  },
+  {
+   "id": "i24",
+   "debtor": "b5",
+   "creditor": "b2",
+   "amount": 80000,
+   "item": "Feed grain, 5 tonnes",
+   "cleared": 50000
+  },
+  {
+   "id": "i25",
+   "debtor": "b7",
+   "creditor": "b4",
+   "amount": 50000,
+   "item": "Staff coffee and lunch tab",
+   "cleared": 50000
+  }
+ ],
+ "transfers": [
+  {
+   "payer": "b4",
+   "payee": "b8",
+   "amount": 100000,
+   "legs": 3
+  },
+  {
+   "payer": "b4",
+   "payee": "b9",
+   "amount": 50000,
+   "legs": 3
+  },
+  {
+   "payer": "b5",
+   "payee": "b9",
+   "amount": 70000,
+   "legs": 3
+  }
+ ],
+ "stats": {
+  "totalOwed": 2810000,
+  "clearedByLoops": 2400000,
+  "settledByChains": 410000,
+  "moneyMoved": 220000,
+  "leverage": 12.772727272727273
+ }
+}

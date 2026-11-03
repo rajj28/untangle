@@ -1,0 +1,62 @@
+{
+  "explainer": [
+    "We find unpaid invoices that loop: A owes B, B owes C, and C owes A.",
+    "For each loop, we record a set-off: a matching reduction on every invoice. No money moves.",
+    "You sign your statement, then settle what's left with the fewest PayPal payments possible."
+  ],
+  "picker": {
+    "title": "Pick a loop to untangle",
+    "subtitle": "These invoices loop back on each other. Choose one to review.",
+    "demo_note": "This is a demo. No PayPal invoices will be changed."
+  },
+  "home": {
+    "position_owes": "You owe {amount} across {count} invoices",
+    "position_owed": "You're owed {amount} across {count} invoices",
+    "net_sentence_pay": "After the loop clears, you'll pay {amount}.",
+    "net_sentence_receive": "After the loop clears, you'll receive {amount}.",
+    "net_sentence_even": "After the loop clears, you'll break even.",
+    "round_title": "Your round: {count} businesses, {amount} in invoices",
+    "cleared_line": "Cleared without moving money: {amount}",
+    "pay_line": "You'll pay: {amount}",
+    "receive_line": "You'll receive: {amount}",
+    "review_cta": "Review your statement",
+    "signed_label": "Signed by {name}"
+  },
+  "statement": {
+    "title": "Your statement",
+    "intro": "Check the amounts below. Nothing is recorded until every business signs.",
+    "setoff_creditor": "You're owed {amount} by {name}. A set-off, or matching invoice reduction, cancels that amount.",
+    "setoff_debtor": "You owe {amount} to {name}. A set-off, or matching invoice reduction, cancels that amount.",
+    "pays": "You pay {amount} through PayPal",
+    "receives": "You receive {amount} through PayPal",
+    "pass_through": "One payment can clear a chain: your payment may settle {count} invoices at once.",
+    "sign_cta": "Sign and record my statement",
+    "hash_note": "After you sign, you'll get a unique code to check this statement later."
+  },
+  "payments": {
+    "pay_cta": "Pay {amount} with PayPal",
+    "payouts_cta": "Get paid with PayPal",
+    "payouts_hint": "You'll receive {amount} after every business signs and payments clear.",
+    "paid_label": "Paid",
+    "waiting_label": "Waiting on {count} more to sign"
+  },
+  "empty_states": {
+    "no_invoices": "No unpaid invoices yet. Add invoices to start untangling.",
+    "no_round": "No loops found right now. We'll check again when new invoices arrive.",
+    "no_activity": "No activity yet. Payments and receipts will show up here.",
+    "network_empty": "No businesses here yet. Invite a customer or supplier to get started."
+  },
+  "errors": {
+    "round_in_progress": "This round is already running. Try again when it finishes.",
+    "nothing_to_settle": "Nothing to clear in this loop right now.",
+    "nothing_to_pay": "You have no payment due in this round.",
+    "paypal_error": "PayPal couldn't complete that. Please try again.",
+    "offline": "You're offline. Reconnect to continue."
+  },
+  "leverage": {
+    "label": "Leverage: invoice value settled per $1 moved via PayPal",
+    "so_far": "{amount} in invoice value settled per $1 moved so far",
+    "when_complete": "When complete: {amount} in invoice value settled per $1 moved",
+    "complete": "This round settled {amount} in invoice value per $1 moved"
+  }
+}

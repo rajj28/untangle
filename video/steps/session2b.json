@@ -1,0 +1,209 @@
+[
+ {
+  "note": "Lee & Patel signs on the phone"
+ },
+ {
+  "viewport": [
+   390,
+   844,
+   2.5,
+   true
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/me/07f96029-7bd9-4c2c-8790-3a781065fa1b"
+ },
+ {
+  "wait": 7000
+ },
+ {
+  "record": "owner-sign"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "click": {
+   "text": "Review & sign"
+  },
+  "moveMs": 900
+ },
+ {
+  "waitFor": "Sign statement",
+  "timeout": 45000
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "click": {
+   "text": "Sign statement"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "stop": true
+ },
+ {
+  "note": "set-offs land on the PayPal invoices"
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "wait": 2000
+ },
+ {
+  "record": "setoffs"
+ },
+ {
+  "waitForJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3').then(r => r.json()).then(j => j.latestRound && !['consenting', 'executing'].includes(j.latestRound.status) ? j.latestRound.status : null)",
+  "timeout": 300000,
+  "every": 2000
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "stop": true
+ },
+ {
+  "note": "the cycle pays, verifies and chases"
+ },
+ {
+  "click": {
+   "text": "Agents"
+  }
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "record": "cycle-2"
+ },
+ {
+  "click": {
+   "text": "Run clearing cycle"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "waitForJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3/agents/runs').then(r => r.json()).then(runs => runs[0] && runs[0].status !== 'running' ? runs[0].kind + ' ' + runs[0].status + ': ' + runs[0].summary : null)",
+  "timeout": 900000,
+  "every": 3000
+ },
+ {
+  "wait": 3000
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-cycle-2.png"
+ },
+ {
+  "note": "the cafe pays its chains by PayPal Payouts"
+ },
+ {
+  "viewport": [
+   390,
+   844,
+   2.5,
+   true
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/me/0da180a8-a127-44b4-b139-0684a2eb9b87"
+ },
+ {
+  "wait": 7000
+ },
+ {
+  "record": "cafe-payouts"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "click": {
+   "text": "Send via Payouts"
+  },
+  "moveMs": 1000
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "stop": true
+ },
+ {
+  "note": "PayPal settles the payouts; then the Watchdog checks everything"
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "waitForJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3').then(r => r.json()).then(j => j.latestRound && j.latestRound.status === 'closed' ? 'closed' : null)",
+  "timeout": 900000,
+  "every": 5000
+ },
+ {
+  "wait": 3000
+ },
+ {
+  "record": "verify"
+ },
+ {
+  "click": {
+   "text": "Verify on PayPal"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "click": {
+   "text": "Agents"
+  }
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "waitForJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3/agents/runs').then(r => r.json()).then(runs => runs[0] && runs[0].status !== 'running' ? runs[0].kind + ' ' + runs[0].status + ': ' + runs[0].summary : null)",
+  "timeout": 600000,
+  "every": 3000
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-verify.png"
+ }
+]

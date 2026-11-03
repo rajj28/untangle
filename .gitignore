@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.hermes-run.log
+video/recordings/
+video/public/clips/
+video/out/
+*.run

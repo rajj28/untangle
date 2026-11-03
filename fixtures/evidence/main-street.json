@@ -1,0 +1,113 @@
+[
+  {
+    "id": "ev-001",
+    "kind": "handwritten_bill",
+    "language": "en",
+    "title": "Delivery docket — Rossi Mill to Rosa Bakery",
+    "content": "ROSSI MILL — DELIVERY DOCKET\nNo. 4471        Date: 14/10\n\nTo: Rosa's Bakery\n    12 Bridge St\n\nQty      Item                        Amt\n40 x 25kg bags  Bread flour          ~~2,850.00~~\n                                        3,000.00\n\nSub-total: ~~2,850.00~~ 3,000.00\nDel. by: M.R.  Rec'd by: ____\n\n(scribbled in margin: \"chk w/ Rosa — 40 bags not 38\")\n(one line scratched out, initials \"RM\" over it)",
+    "messiness": [
+      "crossed-out subtotal with corrected figure",
+      "abbreviations: qty, del., rec'd, chk, w/",
+      "margin note contradicts quantity",
+      "no due date or invoice number",
+      "handwritten, initials scratched over"
+    ],
+    "expected": {
+      "debtor": "Rosa's Bakery",
+      "creditor": "Rossi Mill",
+      "amount_usd": 3000.0,
+      "currency": "USD",
+      "item": "Bread flour, 40 x 25 kg bags",
+      "reference": null,
+      "due_date": null
+    }
+  },
+  {
+    "id": "ev-002",
+    "kind": "voice_note",
+    "language": "es",
+    "title": "Mensaje de voz — Carlos (Ortega Trucking) a Rossi Mill",
+    "content": "Bueno, eh… habla Carlos, de Ortega Trucking. Oiga, le llamo por lo del flete del grano de octubre, ¿no? Este… ya le mandamos la factura hace rato y todavía no nos ha llegado el pago. Son dos mil cuatrocientos dólares, o sea, dos mil cuatrocientos por el transporte del grano de octubre. Eh… sé que andan con mucho trabajo, pero necesitamos que nos depositen esta semana, si se puede, porque ya tenemos que pagar el diésel y a los choferes. Bueno, deme una llamada cuando pueda y lo arreglamos, ¿le parece? Gracias, eh… que esté bien. Adiós.",
+    "messiness": [
+      "spoken Spanish with filler words (bueno, eh, este, o sea, ¿no?)",
+      "amount stated twice in words, no written invoice number",
+      "no explicit due date, only 'esta semana'",
+      "informal, no letterhead or reference"
+    ],
+    "expected": {
+      "debtor": "Rossi Mill",
+      "creditor": "Ortega Trucking",
+      "amount_usd": 2400.0,
+      "currency": "USD",
+      "item": "October grain freight",
+      "reference": null,
+      "due_date": null
+    }
+  },
+  {
+    "id": "ev-003",
+    "kind": "chat",
+    "language": "en",
+    "title": "WhatsApp — Main St Print Shop / Corner Cafe",
+    "content": "Main St Print Shop: Hey, your menu boards and loyalty cards are ready for pickup.\nCorner Cafe: Nice. What's the total again?\nMain St Print Shop: Give me a sec\nMain St Print Shop: 600\nMain St Print Shop: Sorry, wrong line. It's 650 total. The 600 was before we reprinted the boards.\nCorner Cafe: Ok, 650 works.\nCorner Cafe: Can we pay Friday?\nMain St Print Shop: Friday's fine.\nCorner Cafe: Perfect, thanks!",
+    "messiness": [
+      "price first stated as 600, corrected to 650 in a later message",
+      "no invoice or reference number",
+      "no due date, only 'Friday'",
+      "casual shorthand, no currency stated"
+    ],
+    "expected": {
+      "debtor": "Corner Cafe",
+      "creditor": "Main St Print Shop",
+      "amount_usd": 650.0,
+      "currency": "USD",
+      "item": "menu boards and loyalty cards",
+      "reference": null,
+      "due_date": null
+    }
+  },
+  {
+    "id": "ev-004",
+    "kind": "pdf_invoice",
+    "language": "en",
+    "title": "Invoice GVD-1042 — Green Valley Dairy to Corner Cafe",
+    "content": "GREEN VALLEY DAIRY\n88 Meadow Lane · billing@greenvalleydairy.example\n\nINVOICE\nInvoice No.: GVD-1042\nInvoice Date: 31 October 2026\nBill To: Corner Cafe\n\nDescription                     Qty     Unit      Amount\nWhole milk, October             1 lot   —         620.00\nCream, October                  1 lot   —         280.00\n\n                                   Subtotal:      900.00\n                                   Tax:             0.00\n                                   TOTAL DUE:     900.00 USD\n\nPayment Terms: Net 14\nDue Date: 14 November 2026\n\nPlease reference invoice number GVD-1042 with payment.\nThank you for your business.",
+    "messiness": [
+      "two line items must be summed to the 900.00 total",
+      "net 14 terms require computing the due date",
+      "dates written in mixed long-form style",
+      "zero tax line adds noise"
+    ],
+    "expected": {
+      "debtor": "Corner Cafe",
+      "creditor": "Green Valley Dairy",
+      "amount_usd": 900.0,
+      "currency": "USD",
+      "item": "Whole milk and cream, October",
+      "reference": "GVD-1042",
+      "due_date": "2026-11-14"
+    }
+  },
+  {
+    "id": "ev-005",
+    "kind": "email",
+    "language": "en",
+    "title": "Email — Lee and Patel Accounting to Rossi Mill",
+    "content": "From: Marisol Lee <marisol@leeandpatel.example>\nTo: accounts@rossimill.example\nSubject: Q3 bookkeeping + payroll — invoice attached\n\nHi team,\n\nHope Q4 is treating you well. Attaching our invoice for Q3. It covers the quarterly bookkeeping plus payroll runs for July, August and September.\n\nTotal due is USD 1,400.00. Same account as last quarter.\n\nLet me know if you need the breakdown by month — happy to resend. We'd appreciate payment in the usual 30 days.\n\nThanks,\nMarisol\nLee and Patel Accounting",
+    "messiness": [
+      "amount buried in body text, not itemised",
+      "invoice is an attachment not shown in the body",
+      "no invoice number in the email text",
+      "due date only implied as 'usual 30 days'"
+    ],
+    "expected": {
+      "debtor": "Rossi Mill",
+      "creditor": "Lee & Patel Accounting",
+      "amount_usd": 1400.0,
+      "currency": "USD",
+      "item": "Q3 bookkeeping and payroll",
+      "reference": null,
+      "due_date": null
+    }
+  }
+]

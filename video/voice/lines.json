@@ -1,0 +1,74 @@
+{
+  "style": "",
+  "voice": "Charon",
+  "lines": [
+    {
+      "id": "h1",
+      "text": "This is Rosa. She runs a bakery, and a customer owes her twenty-eight hundred dollars."
+    },
+    {
+      "id": "h2",
+      "text": "But Rosa owes the mill three thousand. The mill owes the trucking company. And the trucking company? It owes Rosa."
+    },
+    {
+      "id": "h3",
+      "text": "Everyone is owed. Nobody can pay. So everyone waits."
+    },
+    {
+      "id": "h4",
+      "text": "Fifty-six percent of American small businesses are owed money right now. About seventeen and a half thousand dollars each."
+    },
+    {
+      "id": "h5",
+      "text": "But debts that run in a circle can simply cancel. No money has to move."
+    },
+    {
+      "id": "h6",
+      "text": "On our Main Street, twenty-eight thousand dollars of invoices settled with just twenty-two hundred dollars of PayPal payments."
+    },
+    {
+      "id": "h7",
+      "text": "This is Untangle."
+    },
+    {
+      "id": "d1",
+      "text": "Untangle is an AI clearing house for small-business debt, built on PayPal."
+    },
+    {
+      "id": "d2",
+      "text": "Our engine finds the loops of debt that no single business can see, and cancels them without moving a dollar."
+    },
+    {
+      "id": "d3",
+      "text": "It scales. Ten thousand businesses and sixty thousand invoices clear in about a second, right in the browser."
+    },
+    {
+      "id": "d4",
+      "text": "Every debt here is a real PayPal sandbox invoice. Twenty-five invoices, twenty-eight thousand one hundred dollars owed, in one AG Grid ledger."
+    },
+    {
+      "id": "d5",
+      "text": "One click starts a clearing cycle. AI agents read each business's PayPal invoices, and a watchdog checks every one against PayPal."
+    },
+    {
+      "id": "d6",
+      "text": "Each set-off is recorded on the PayPal invoice itself, as an external payment. Twenty-two of them, on real invoices."
+    },
+    {
+      "id": "d7",
+      "text": "Then each business's treasurer agent checks the deal against its owner's signed policy, and signs."
+    },
+    {
+      "id": "d8",
+      "text": "The owner signs the statement. Everything left is settled with just three PayPal payments."
+    },
+    {
+      "id": "d9",
+      "text": "Twenty-eight thousand dollars of debt, settled. Only twenty-two hundred dollars moved. Twelve point eight times leverage."
+    },
+    {
+      "id": "d10",
+      "text": "Untangle. Clear the loop. Pay only the rest."
+    }
+  ]
+}

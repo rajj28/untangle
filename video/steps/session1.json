@@ -1,0 +1,97 @@
+[
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "wait": 7000
+ },
+ {
+  "note": "reset the street (not recorded)"
+ },
+ {
+  "click": {
+   "text": "Reset demo"
+  }
+ },
+ {
+  "wait": 900
+ },
+ {
+  "click": {
+   "text": "Archive and reset"
+  }
+ },
+ {
+  "waitFor": "fresh invoices",
+  "timeout": 360000
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/ledger"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "record": "desk-ledger"
+ },
+ {
+  "wait": 4500
+ },
+ {
+  "click": {
+   "text": "Network"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 7000
+ },
+ {
+  "stop": true
+ },
+ {
+  "click": {
+   "text": "Agents"
+  }
+ },
+ {
+  "wait": 3000
+ },
+ {
+  "record": "cycle-1"
+ },
+ {
+  "click": {
+   "text": "Run clearing cycle"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "waitForJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3/agents/runs').then(r => r.json()).then(runs => runs[0] && runs[0].status !== 'running' ? runs[0].status + ': ' + runs[0].summary : null)",
+  "timeout": 720000,
+  "every": 3000
+ },
+ {
+  "wait": 3000
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-cycle-1.png"
+ }
+]

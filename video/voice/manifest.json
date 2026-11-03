@@ -1,0 +1,87 @@
+{
+  "h7": {
+    "text": "This is Untangle.",
+    "seconds": 2.41,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "h1": {
+    "text": "This is Rosa. She runs a bakery, and a customer owes her twenty-eight hundred dollars.",
+    "seconds": 5.49,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "h2": {
+    "text": "But Rosa owes the mill three thousand. The mill owes the trucking company. And the trucking company? It owes Rosa.",
+    "seconds": 8.37,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "h3": {
+    "text": "Everyone is owed. Nobody can pay. So everyone waits.",
+    "seconds": 5.33,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "h4": {
+    "text": "Fifty-six percent of American small businesses are owed money right now. About seventeen and a half thousand dollars each.",
+    "seconds": 7.37,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "h5": {
+    "text": "But debts that run in a circle can simply cancel. No money has to move.",
+    "seconds": 5.33,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "h6": {
+    "text": "On our Main Street, twenty-eight thousand dollars of invoices settled with just twenty-two hundred dollars of PayPal payments.",
+    "seconds": 7.77,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "d1": {
+    "text": "Untangle is an AI clearing house for small-business debt, built on PayPal.",
+    "seconds": 4.45,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d2": {
+    "text": "Our engine finds the loops of debt that no single business can see, and cancels them without moving a dollar.",
+    "seconds": 6.37,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d3": {
+    "text": "It scales. Ten thousand businesses and sixty thousand invoices clear in about a second, right in the browser.",
+    "seconds": 6.49,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d4": {
+    "text": "Every debt here is a real PayPal sandbox invoice. Twenty-five invoices, twenty-eight thousand one hundred dollars owed, in one AG Grid ledger.",
+    "seconds": 10.21,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d5": {
+    "text": "One click starts a clearing cycle. AI agents read each business's PayPal invoices, and a watchdog checks every one against PayPal.",
+    "seconds": 8.45,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d6": {
+    "text": "Each set-off is recorded on the PayPal invoice itself, as an external payment. Twenty-two of them, on real invoices.",
+    "seconds": 7.45,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d7": {
+    "text": "Then each business's treasurer agent checks the deal against its owner's signed policy, and signs.",
+    "seconds": 7.45,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d8": {
+    "text": "The owner signs the statement. Everything left is settled with just three PayPal payments.",
+    "seconds": 5.73,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d9": {
+    "text": "Twenty-eight thousand dollars of debt, settled. Only twenty-two hundred dollars moved. Twelve point eight times leverage.",
+    "seconds": 7.41,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "d10": {
+    "text": "Untangle. Clear the loop. Pay only the rest.",
+    "seconds": 3.89,
+    "model": "gemini-3.8-flash-lite-tts"
+  }
+}
