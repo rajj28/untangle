@@ -44,3 +44,6 @@ export function initials(name: string): string {
   const words = name.replace(/[^A-Za-z& ]/g, "").split(/\s+/).filter((word) => word.length > 0 && word !== "&");
   return ((words[0]?.[0] ?? "") + (words[1]?.[0] ?? "")).toUpperCase();
 }
+
+/** The deployed app, shown in the browser chrome and the outro. */
+export const LIVE_URL = "untangle-5isb.onrender.com";

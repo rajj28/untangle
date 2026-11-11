@@ -1,33 +1,20 @@
 import type React from "react";
-import { Composition, Series } from "remotion";
+import { Composition } from "remotion";
 import { Hook, hookTimeline } from "./hook/Hook";
-import { Demo, demoTimeline } from "./demo/Demo";
+import { PayPal, paypalDuration } from "./demo/PayPal";
 import { Outro, outroDuration } from "./demo/Outro";
+import { Program, program } from "./program/Program";
 import { FPS, HEIGHT, WIDTH } from "./theme";
+
+const size = { fps: FPS, width: WIDTH, height: HEIGHT };
 
 export const Root: React.FC = () => (
   <>
-    <Composition id="Hook" component={Hook} durationInFrames={hookTimeline().total} fps={FPS} width={WIDTH} height={HEIGHT} />
-    <Composition id="Demo" component={Demo} durationInFrames={demoTimeline().total} fps={FPS} width={WIDTH} height={HEIGHT} />
-    <Composition id="Outro" component={Outro} durationInFrames={outroDuration()} fps={FPS} width={WIDTH} height={HEIGHT} />
-    <Composition id="Full" component={Full} durationInFrames={fullDuration()} fps={FPS} width={WIDTH} height={HEIGHT} />
+    {/* Full: the ~3:30 cut. Short: the Devpost cut, under 3:00. */}
+    <Composition id="Full" component={Program} defaultProps={{ cut: "long" as const }} durationInFrames={program("long").total} {...size} />
+    <Composition id="Short" component={Program} defaultProps={{ cut: "short" as const }} durationInFrames={program("short").total} {...size} />
+    <Composition id="Hook" component={Hook} durationInFrames={hookTimeline().total} {...size} />
+    <Composition id="PayPal" component={PayPal} durationInFrames={paypalDuration()} {...size} />
+    <Composition id="Outro" component={Outro} durationInFrames={outroDuration()} {...size} />
   </>
 );
-
-const Full: React.FC = () => (
-  <Series>
-    <Series.Sequence durationInFrames={hookTimeline().total}>
-      <Hook />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={demoTimeline().total}>
-      <Demo />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={outroDuration()}>
-      <Outro />
-    </Series.Sequence>
-  </Series>
-);
-
-function fullDuration() {
-  return hookTimeline().total + demoTimeline().total + outroDuration();
-}

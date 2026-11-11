@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AgGridReact } from "ag-grid-react";
-import type { ColDef, GridOptions, ValueFormatterParams } from "ag-grid-community";
+import type { ColDef, ExcelStyle, GridApi, GridOptions, ValueFormatterParams, ValueGetterParams } from "ag-grid-community";
 import type { CustomCellRendererProps } from "ag-grid-react";
-import { ArrowRightLeft, Check, ChevronDown, CircleAlert, Copy, FileCheck2, Landmark, LoaderCircle, RotateCw, Send, ShieldCheck, Unplug, WalletCards } from "lucide-react";
+import { ArrowRightLeft, BarChart3, Check, ChevronDown, CircleAlert, Copy, FileCheck2, GitBranch, History, Landmark, LoaderCircle, RotateCw, Send, ShieldCheck, Unplug, WalletCards } from "lucide-react";
 import { api, ApiError } from "../api.ts";
 import type { BusEvent, Config, NetworkSummary, ObligationView, RoundListItem, RoundView, StatementBody, TransferView } from "../types.ts";
 import { formatMoney, calculateLeverage, formatLeverage } from "../money.ts";
@@ -20,6 +21,10 @@ import { Button } from "../ui/Button.tsx";
 import { Dialog } from "../components/Dialog.tsx";
 import { PayDialog } from "../paypal/PayDialog.tsx";
 import { StatementExplanation } from "./me/StatementExplanation.tsx";
+import { AnalysisPanel } from "./SettlementAnalysis.tsx";
+import { NetProofVerifier } from "../components/NetProofVerifier.tsx";
+import { PaypalSaysBadge } from "../components/PaypalSays.tsx";
+import { CollapseGraph } from "./CollapseGraph.tsx";
 
 type PushToast = (toast: Omit<ToastMessage, "id">) => void;
 
@@ -167,6 +172,8 @@ export function Settlement({ networkId, summary, obligations, actingAs, names, c
   const [selectedRoundId, setSelectedRoundId] = useState<string | null>(null);
   const [payingTransfer, setPayingTransfer] = useState<TransferView | null>(null);
   const [statement, setStatement] = useState<{ roundId: string; businessId: string; statementHash: string; body: StatementBody } | null>(null);
+  const [showCharts, setShowCharts] = useState(false);
+  const [showCollapse, setShowCollapse] = useState(false);
   const [showExecute, setShowExecute] = useState(false);
   const [signingAll, setSigningAll] = useState(false);
   const [chaosDialogOpen, setChaosDialogOpen] = useState(false);
@@ -251,10 +258,28 @@ export function Settlement({ networkId, summary, obligations, actingAs, names, c
 
   const eligibleCount = obligations.filter((item) => item.status !== "cancelled" && item.outstandingMinor > 0).length;
   const latestId = rounds[0]?.id ?? summary.latestRound?.id ?? null;
-  const showHero = round === undefined || (round.id === latestId && (round.status === "closed" || round.status === "failed"));
+  const [reviewLatest, setReviewLatest] = useState(false);
+  const showHero = round === undefined || (!reviewLatest && round.id === latestId && (round.status === "closed" || round.status === "failed"));
   const totalOutstanding = summary.totals.outstandingMinor;
   const rows = useMemo(() => round ? roundRows(round, names, obligations) : [], [names, obligations, round]);
   const currentFailure = round ? reasonForRound(events, round.id) : null;
+
+  /** Rebuild the engine's plan shape for the collapse animation (G) from the round view. */
+  const collapseData = useMemo(() => {
+    if (!round) return null;
+    const setoffs: Record<string, number> = {};
+    for (const so of round.setoffs) { if (so.amountMinor > 0) setoffs[so.obligationId] = so.amountMinor; }
+    const transfers = round.transfers.map((t) => ({ payer: t.payerId, payee: t.payeeId, amount: t.amountMinor, legs: t.legs.map((l) => ({ obligationId: l.obligationId, amount: l.amountMinor })) }));
+    const engineObligations = obligations.filter((o) => o.paypalInvoiceId !== null).map((o) => ({ id: o.id, debtor: o.debtorId, creditor: o.creditorId, amount: o.amountMinor }));
+    const stats = round.stats ? {
+      totalOwed: round.stats.totalOwed,
+      clearedByLoops: round.stats.clearedByLoops,
+      settledByChains: round.stats.settledByChains,
+      moneyMoved: round.stats.moneyMoved,
+      leverage: typeof round.stats.leverage === "string" ? Number(round.stats.leverage) : round.stats.leverage,
+    } : { totalOwed: 0, clearedByLoops: 0, settledByChains: 0, moneyMoved: 0, leverage: null as number | null };
+    return { setoffs, transfers, stats, engineObligations };
+  }, [round, obligations]);
 
   const onPay = useCallback((transferId: string) => {
     const transfer = round?.transfers.find((item) => item.id === transferId);
@@ -367,6 +392,7 @@ export function Settlement({ networkId, summary, obligations, actingAs, names, c
               </button>
               <span className="text-[10px] text-muted">No money moves until each business reviews its statement.</span>
             </div>
+            {round?.status === "closed" && <button className="desk-button mt-5" onClick={() => setReviewLatest(true)}><History size={13} />Review last round</button>}
             {eligibleCount === 0 && <p className="mt-5 rounded-md bg-[var(--brand-tint)] px-3 py-2 text-xs text-[var(--brand-strong)]">All invoices are settled. There is nothing new to plan.</p>}
             {round?.status === "failed" && currentFailure && <p className="mt-4 text-xs text-[var(--red)]">Previous round: {currentFailure}</p>}
           </div>}
@@ -383,6 +409,10 @@ export function Settlement({ networkId, summary, obligations, actingAs, names, c
               {round.status === "executing" && <span className="flex items-center gap-1.5 text-[10px] text-muted"><LoaderCircle size={13} className="animate-spin text-[var(--brand)]" />Recording set-offs on PayPal invoices…</span>}
               {showExecute && round.status === "executing" && <button className="desk-button" onClick={() => execute.mutate()} disabled={execute.isPending}>{execute.isPending ? <LoaderCircle size={13} className="animate-spin" /> : <RotateCw size={13} />}Execute now</button>}
               {["settling", "closed", "failed"].includes(round.status) && <button className="desk-button" onClick={() => verify.mutate(round.id)} disabled={verify.isPending}>{verify.isPending ? <LoaderCircle size={13} className="animate-spin" /> : <ShieldCheck size={13} />}Verify on PayPal</button>}
+              <button className="desk-button" onClick={() => setShowCharts(true)} title="Chart debt cleared versus cash moved per loop / payment"><BarChart3 size={13} />Chart it</button>
+              <button className="desk-button" onClick={() => setShowCollapse(true)} disabled={!collapseData || collapseData.engineObligations.length === 0} title="Animate this round's plan before → after on a graph"><GitBranch size={13} />Before → After</button>
+              <NetProofVerifier variant="button" />
+              <AuditPack round={round} obligations={obligations} names={names} currency={summary.network.currency} />
             </div>
           </div>
           <div className="mt-3 flex items-center gap-1 overflow-x-auto">
@@ -410,6 +440,12 @@ export function Settlement({ networkId, summary, obligations, actingAs, names, c
           <StatTile label="Moved through PayPal" value={formatMoney(round.stats?.moneyMoved ?? 0, summary.network.currency)} detail={`${round.transfers.length} payment${round.transfers.length === 1 ? "" : "s"}`} />
           <StatTile label="Leverage" value={formatLeverage(calculateLeverage((round.stats?.clearedByLoops ?? 0) + (round.stats?.settledByChains ?? 0), round.stats?.moneyMoved ?? 0))} detail="Invoices settled per $1 moved" accent />
         </div>
+
+        {round.replanned && round.replanned.brokeLoops.length > 0 && (
+          <div className="border-b line bg-[var(--red-tint)] px-4 py-2 text-[10px] leading-4 text-[var(--red)]">
+            <span className="font-semibold">Re-planned after a rejection.</span> {round.replanned.brokeLoops.length} loop(s) that contained the disputed invoice broke ({round.replanned.brokeLoops.map((loop) => `loop ${loop.memberIds.length} invoices`).join(", ")}). The engine found {round.replanned.newLoops.length} new loop(s) without the disputed debt.
+          </div>
+        )}
 
         <div className="settlement-columns grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_310px]">
           <div className="flex min-h-0 flex-col border-r line">
@@ -462,6 +498,20 @@ export function Settlement({ networkId, summary, obligations, actingAs, names, c
       <Drawer open={statement !== null} title={statement ? `${names[statement.businessId] ?? "Business"} · settlement statement` : "Settlement statement"} onClose={() => setStatement(null)}>
         {statement && <StatementDetail statement={statement} roundId={statement.roundId} names={names} onToast={onToast} />}
       </Drawer>
+      <Drawer open={showCharts} title="How this result came about" onClose={() => setShowCharts(false)}>
+        {round && <AnalysisPanel round={round} obligations={obligations} names={names} currency={summary.network.currency} theme={theme} />}
+      </Drawer>
+      <Drawer open={showCollapse} title="Before → after collapse" onClose={() => setShowCollapse(false)}>
+        {collapseData && (
+          <CollapseGraph
+            nodes={summary.businesses.map((b) => ({ id: b.id, name: b.name }))}
+            obligations={collapseData.engineObligations}
+            plan={{ setoffs: collapseData.setoffs, transfers: collapseData.transfers, stats: collapseData.stats }}
+            currency={summary.network.currency}
+            names={names}
+          />
+        )}
+      </Drawer>
       <PayDialog
         transfer={payingTransfer ? round?.transfers.find((item) => item.id === payingTransfer.id) ?? payingTransfer : null}
         payeeName={payingTransfer ? names[payingTransfer.payeeId] ?? "the creditor" : "the creditor"}
@@ -506,8 +556,16 @@ function StatementDetail({ statement, roundId, names, onToast }: {
         <div><p className="text-[9px] text-muted">Pays</p><p className="mt-1 text-xs font-semibold tabular-nums">{formatMoney(body.totals.paysMinor, body.currency)}</p></div>
         <div><p className="text-[9px] text-muted">Receives</p><p className="mt-1 text-xs font-semibold tabular-nums">{formatMoney(body.totals.receivesMinor, body.currency)}</p></div>
       </div>
+      <p className="mt-3 rounded-md bg-[var(--brand-tint)] px-3 py-2 text-[10px] leading-4 text-[var(--brand-strong)]">
+        Net position {formatMoney(body.netBefore, body.currency)} · after {formatMoney(body.netAfter, body.currency)} — unchanged
+      </p>
     </div>
-    <StatementSection title="Set-offs" items={body.setoffs.map((item) => ({ label: `${item.role === "debtor" ? "Owes" : "Is owed by"} ${names[item.counterpartyId] ?? "a business"} · invoice ${short(item.invoiceId)}`, amount: item.amountMinor }))} currency={body.currency} />
+    <StatementSection
+      title="Set-offs"
+      items={body.setoffs.map((item) => ({ key: `so-${item.obligationId}`, label: `${item.role === "debtor" ? "Owes" : "Is owed by"} ${names[item.counterpartyId] ?? "a business"} · invoice ${short(item.invoiceId)}`, amount: item.amountMinor }))}
+      currency={body.currency}
+      extra={(item) => <PaypalSaysBadge obligationId={item.key?.replace("so-", "") ?? ""} currency={body.currency} />}
+    />
     <StatementSection title="Pays" items={body.pays.map((item) => ({ label: `Pay ${names[item.payeeId] ?? "a business"}`, amount: item.amountMinor }))} currency={body.currency} />
     <StatementSection title="Receives" items={body.receives.map((item) => ({ label: `Receive from ${names[item.payerId] ?? "a business"}`, amount: item.amountMinor }))} currency={body.currency} />
     <StatementSection title="Pass-through legs" items={body.passThrough.map((item) => ({ label: `${item.role} · invoice ${short(item.obligationId)}`, amount: item.amountMinor }))} currency={body.currency} />
@@ -518,9 +576,9 @@ function StatementDetail({ statement, roundId, names, onToast }: {
   </div>;
 }
 
-function StatementSection({ title, items, currency }: { title: string; items: { label: string; amount: number }[]; currency: string }) {
+function StatementSection({ title, items, currency, extra }: { title: string; items: { key?: string; label: string; amount: number }[]; currency: string; extra?: (item: { key?: string; label: string; amount: number }) => ReactNode }) {
   return <section><h3 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted">{title} <span className="font-normal">({items.length})</span></h3>
-    {items.length === 0 ? <p className="text-xs text-muted">None</p> : <div className="space-y-2">{items.map((item, index) => <div key={`${title}-${index}`} className="flex items-start justify-between gap-3 text-xs"><span className="text-soft">{item.label}</span><span className="shrink-0 tabular-nums font-medium">{formatMoney(item.amount, currency)}</span></div>)}</div>}
+    {items.length === 0 ? <p className="text-xs text-muted">None</p> : <div className="space-y-2">{items.map((item, index) => <div key={item.key ?? `${title}-${index}`} className="flex items-start justify-between gap-3 text-xs"><span className="text-soft">{item.label}</span><span className="flex shrink-0 items-center gap-2"><span className="tabular-nums font-medium">{formatMoney(item.amount, currency)}</span>{extra?.(item)}</span></div>)}</div>}
   </section>;
 }
 
@@ -533,4 +591,219 @@ function notifyError(error: unknown, onToast: PushToast): void {
 
 function short(value: string): string {
   return value.length > 16 ? `${value.slice(0, 9)}…${value.slice(-4)}` : value;
+}
+
+interface AuditRow {
+  sheetKey: string;
+  businessName: string;
+  rowType: "TOTAL" | "BUSINESS" | "INVOICE";
+  description: string;
+  invoiceId: string;
+  paypalInvoiceId: string;
+  amountMinor: number;
+  clearedMinor: number;
+  cashNeededMinor: number;
+  receivesMinor: number;
+  status: string;
+  dueOn: string;
+}
+
+interface JournalRow {
+  journalNo: string;
+  journalDate: string;
+  account: string;
+  debits: string;
+  credits: string;
+  description: string;
+  name: string;
+}
+
+function AuditPack({ round, obligations, names, currency }: {
+  round: RoundView;
+  obligations: readonly ObligationView[];
+  names: Readonly<Record<string, string>>;
+  currency: string;
+}) {
+  const gridRef = useRef<AgGridReact<AuditRow>>(null);
+  const [gridReady, setGridReady] = useState(false);
+  const journalRef = useRef<AgGridReact<JournalRow>>(null);
+
+  const journalRows = useMemo<JournalRow[]>(() => {
+    const out: JournalRow[] = [];
+    const journalDate = new Date().toISOString().slice(0, 10);
+    const dollars = (minor: number) => (minor / 100).toFixed(2);
+    let je = 0;
+    for (const setoff of round.setoffs) {
+      je += 1;
+      const no = `JE-${String(je).padStart(4, "0")}`;
+      const amount = dollars(setoff.amountMinor);
+      out.push({ journalNo: no, journalDate, account: "Accounts Payable", debits: amount, credits: "0.00", description: `Set-off invoice ${setoff.obligationId.slice(0, 8)}`, name: names[setoff.debtorId] ?? "Debtor" });
+      out.push({ journalNo: no, journalDate, account: "Accounts Receivable", debits: "0.00", credits: amount, description: `Set-off invoice ${setoff.obligationId.slice(0, 8)}`, name: names[setoff.creditorId] ?? "Creditor" });
+    }
+    for (const transfer of round.transfers) {
+      je += 1;
+      const no = `JE-${String(je).padStart(4, "0")}`;
+      const amount = dollars(transfer.amountMinor);
+      const ref = transfer.paypalCaptureId ?? transfer.payoutBatchId ?? transfer.payoutItemId ?? transfer.id;
+      const description = `PayPal payment ${ref}`;
+      const payer = names[transfer.payerId] ?? "Payer";
+      const payee = names[transfer.payeeId] ?? "Payee";
+      out.push({ journalNo: no, journalDate, account: "Accounts Payable", debits: amount, credits: "0.00", description, name: payer });
+      out.push({ journalNo: no, journalDate, account: "PayPal Cash", debits: "0.00", credits: amount, description, name: payer });
+      out.push({ journalNo: no, journalDate, account: "PayPal Cash", debits: amount, credits: "0.00", description, name: payee });
+      out.push({ journalNo: no, journalDate, account: "Accounts Receivable", debits: "0.00", credits: amount, description, name: payee });
+    }
+    return out;
+  }, [names, round]);
+
+  const rows = useMemo<AuditRow[]>(() => {
+    const eligible = obligations.filter((item) => item.status !== "cancelled");
+    const totalOwed = eligible.reduce((sum, item) => sum + item.amountMinor, 0);
+    const totalCleared = round.setoffs.reduce((sum, item) => sum + item.amountMinor, 0);
+    const totalMoved = round.transfers.reduce((sum, item) => sum + item.amountMinor, 0);
+    const out: AuditRow[] = [];
+    out.push({
+      sheetKey: "summary",
+      businessName: "Untangle network",
+      rowType: "TOTAL",
+      description: "Grand total",
+      invoiceId: "",
+      paypalInvoiceId: "",
+      amountMinor: totalOwed,
+      clearedMinor: totalCleared,
+      cashNeededMinor: totalMoved,
+      receivesMinor: 0,
+      status: "",
+      dueOn: "",
+    });
+    for (const statement of round.statements) {
+      const businessId = statement.businessId;
+      const businessName = names[businessId] ?? "Business";
+      const owes = eligible.filter((item) => item.debtorId === businessId).reduce((sum, item) => sum + item.amountMinor, 0);
+      const totals = statement.body.totals;
+      out.push({
+        sheetKey: "summary",
+        businessName,
+        rowType: "BUSINESS",
+        description: `${businessName} statement`,
+        invoiceId: "",
+        paypalInvoiceId: "",
+        amountMinor: owes,
+        clearedMinor: totals.clearedMinor,
+        cashNeededMinor: totals.paysMinor,
+        receivesMinor: totals.receivesMinor,
+        status: "",
+        dueOn: "",
+      });
+      for (const setoff of statement.body.setoffs) {
+        out.push({
+          sheetKey: businessId,
+          businessName,
+          rowType: "INVOICE",
+          description: `Invoice ${short(setoff.invoiceId)}`,
+          invoiceId: setoff.invoiceId,
+          paypalInvoiceId: setoff.invoiceId,
+          amountMinor: setoff.amountMinor,
+          clearedMinor: setoff.amountMinor,
+          cashNeededMinor: 0,
+          receivesMinor: 0,
+          status: "Cleared by loop",
+          dueOn: "",
+        });
+      }
+    }
+    return out;
+  }, [names, obligations, round]);
+
+  const columnDefs = useMemo<ColDef<AuditRow>[]>(
+    () => [
+      { field: "sheetKey", headerName: "Sheet", hide: true, filter: "agTextColumnFilter" },
+      { field: "businessName", headerName: "Business", minWidth: 150 },
+      { field: "rowType", headerName: "Type", width: 110 },
+      { field: "description", headerName: "Description", minWidth: 160 },
+      { field: "invoiceId", headerName: "Invoice", width: 160, cellClass: "font-mono" },
+      { field: "paypalInvoiceId", headerName: "PayPal invoice", width: 180, cellClass: "font-mono" },
+      { field: "amountMinor", headerName: "Amount", type: "rightAligned", cellClass: "audit-currency", valueGetter: (params: ValueGetterParams<AuditRow>) => params.data ? Number(params.data.amountMinor ?? 0) / 100 : null },
+      { field: "clearedMinor", headerName: "Cleared", type: "rightAligned", cellClass: "audit-currency", valueGetter: (params: ValueGetterParams<AuditRow>) => params.data ? Number(params.data.clearedMinor ?? 0) / 100 : null },
+      { field: "cashNeededMinor", headerName: "Cash paid", type: "rightAligned", cellClass: "audit-currency", valueGetter: (params: ValueGetterParams<AuditRow>) => params.data ? Number(params.data.cashNeededMinor ?? 0) / 100 : null },
+      { field: "receivesMinor", headerName: "Cash received", type: "rightAligned", cellClass: "audit-currency", valueGetter: (params: ValueGetterParams<AuditRow>) => params.data ? Number(params.data.receivesMinor ?? 0) / 100 : null },
+      { field: "status", headerName: "Status", width: 140 },
+      { field: "dueOn", headerName: "Due", width: 100 },
+    ],
+    [],
+  );
+
+  const excelStyles = useMemo<ExcelStyle[]>(
+    () => [{ id: "audit-currency", dataType: "Number", numberFormat: { format: "$#,##0.00" } }],
+    [],
+  );
+
+  const journalColumnDefs = useMemo<ColDef<JournalRow>[]>(
+    () => [
+      { field: "journalNo", headerName: "JournalNo", width: 90 },
+      { field: "journalDate", headerName: "JournalDate", width: 110 },
+      { field: "account", headerName: "AccountName", minWidth: 150 },
+      { field: "debits", headerName: "Debits", type: "rightAligned", cellClass: "audit-currency" },
+      { field: "credits", headerName: "Credits", type: "rightAligned", cellClass: "audit-currency" },
+      { field: "description", headerName: "Description", minWidth: 180 },
+      { field: "name", headerName: "Name", minWidth: 140 },
+    ],
+    [],
+  );
+
+  const doExport = () => {
+    const api: GridApi<AuditRow> | undefined = gridRef.current?.api;
+    if (!api) return;
+    const date = new Date().toISOString().slice(0, 10);
+    const sheets: string[] = [];
+    api.setFilterModel({ sheetKey: { filterType: "text", type: "equals", filter: "summary" } });
+    api.onFilterChanged();
+    const summary = api.getSheetDataForExcel({ sheetName: "Summary", columnKeys: ["businessName", "rowType", "amountMinor", "clearedMinor", "cashNeededMinor", "receivesMinor"] });
+    if (summary) sheets.push(summary);
+    for (const statement of round.statements) {
+      const businessId = statement.businessId;
+      const name = names[businessId] ?? "Business";
+      api.setFilterModel({ sheetKey: { filterType: "text", type: "equals", filter: businessId } });
+      api.onFilterChanged();
+      const sheet = api.getSheetDataForExcel({ sheetName: name.slice(0, 31), columnKeys: ["description", "invoiceId", "paypalInvoiceId", "amountMinor", "clearedMinor", "cashNeededMinor", "status", "dueOn"] });
+      if (sheet) sheets.push(sheet);
+    }
+    const journalApi = journalRef.current?.api;
+    if (journalApi) {
+      const journalSheet = journalApi.getSheetDataForExcel({ sheetName: "Journal", columnKeys: ["journalNo", "journalDate", "account", "debits", "credits", "description", "name"] });
+      if (journalSheet) sheets.push(journalSheet);
+    }
+    if (sheets.length > 0) api.exportMultipleSheetsAsExcel({ data: sheets, fileName: `untangle-audit-${date}.xlsx` });
+  };
+
+  return (
+    <>
+      <button className="desk-button" onClick={doExport} disabled={!gridReady} title="Export a Summary sheet plus one sheet per business statement"><FileCheck2 size={13} />Export audit pack</button>
+      <div style={{ position: "absolute", left: -99999, top: 0, width: 1200, height: 600, pointerEvents: "none" }}>
+        <AgGridReact<AuditRow>
+          ref={gridRef}
+          onGridReady={() => setGridReady(true)}
+          rowData={rows}
+          columnDefs={columnDefs}
+          excelStyles={excelStyles}
+          getRowId={(params) => `${params.data.sheetKey}:${params.data.rowType}:${params.data.invoiceId}:${params.data.description}`}
+          suppressCellFocus
+          suppressContextMenu
+          suppressColumnVirtualisation
+        />
+      </div>
+      <div style={{ position: "absolute", left: -99999, top: 0, width: 1200, height: 600, pointerEvents: "none" }}>
+        <AgGridReact<JournalRow>
+          ref={journalRef}
+          rowData={journalRows}
+          columnDefs={journalColumnDefs}
+          excelStyles={excelStyles}
+          getRowId={(params) => `${params.data.journalNo}:${params.data.name}:${params.data.account}`}
+          suppressCellFocus
+          suppressContextMenu
+          suppressColumnVirtualisation
+        />
+      </div>
+    </>
+  );
 }

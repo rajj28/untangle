@@ -1,0 +1,161 @@
+[
+ {
+  "note": "Judge mode: start a private street, add one invoice from the phone, desk shows the loop through You."
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/judge"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "(() => { localStorage.removeItem('untangle-judge-token'); location.reload(); return true; })()"
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "record": "judge-start"
+ },
+ {
+  "wait": 900
+ },
+ {
+  "click": {
+   "text": "Start your own network"
+  },
+  "moveMs": 900
+ },
+ {
+  "waitFor": "Open on your phone",
+  "timeout": 60000
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-judge-start.png"
+ },
+ {
+  "viewport": [
+   390,
+   844,
+   2.5,
+   true
+  ]
+ },
+ {
+  "gotoJs": "Promise.resolve(location.origin + '/#/judge/phone/' + encodeURIComponent(localStorage.getItem('untangle-judge-token')))"
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "record": "judge"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "click": {
+   "text": "I owe"
+  },
+  "moveMs": 700
+ },
+ {
+  "wait": 500
+ },
+ {
+  "click": {
+   "selector": "select"
+  },
+  "moveMs": 700
+ },
+ {
+  "eval": "(() => { const s = document.querySelector('select'); const o = [...s.options].find(o => o.text.includes('Alpha')); const set = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set; set.call(s, o.value); s.dispatchEvent(new Event('change', { bubbles: true })); return o.text; })()"
+ },
+ {
+  "wait": 700
+ },
+ {
+  "click": {
+   "selector": "input[type=number]"
+  },
+  "moveMs": 700
+ },
+ {
+  "type": "120"
+ },
+ {
+  "wait": 500
+ },
+ {
+  "click": {
+   "text": "Add your debt"
+  },
+  "moveMs": 800
+ },
+ {
+  "waitFor": "desk view just updated",
+  "timeout": 30000
+ },
+ {
+  "wait": 2200
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-judge-phone.png"
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/judge"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "record": "judge-desk"
+ },
+ {
+  "waitFor": "loop that includes",
+  "timeout": 30000
+ },
+ {
+  "wait": 1800
+ },
+ {
+  "click": {
+   "text": "Clear"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-judge-desk.png"
+ }
+]

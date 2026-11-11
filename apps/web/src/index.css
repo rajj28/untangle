@@ -170,6 +170,7 @@ button:disabled { cursor: not-allowed; opacity: .52; }
 .ag-grid-wrap .ag-header { border-bottom: 1px solid var(--line); }
 .ag-grid-wrap .ag-row { border-bottom-color: color-mix(in srgb, var(--line) 75%, transparent); }
 .ag-grid-wrap .ag-cell { display: flex; align-items: center; }
+.ag-grid-wrap .ag-right-aligned-cell { justify-content: flex-end; }
 .ag-grid-wrap .ag-cell { font-variant-numeric: tabular-nums; }
 .ag-grid-wrap .ag-status-bar { border-top: 1px solid var(--line); }
 .row-involves-business .ag-cell:first-child { box-shadow: inset 2px 0 0 var(--brand); }
@@ -521,3 +522,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .ui-skeleton::after { animation: none; }
   .ui-sheet-panel { animation: none; }
 }
+
+/* Approval card */
+.approval-card-header { display: flex; align-items: center; gap: 10px; }
+.approval-agent-icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; flex: none; border-radius: 8px; background: var(--brand-tint); color: var(--brand); }
+.approval-agent-icon svg { width: 16px; height: 16px; }
+.approval-status-badge { flex: none; border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 600; background: var(--surface-soft); border: 1px solid var(--line); }
+.approval-status-executed, .approval-status-approved { background: var(--brand-tint); color: var(--brand-strong); border-color: transparent; }
+.approval-status-rejected, .approval-status-failed, .approval-status-blocked { background: var(--red-tint); color: var(--red); border-color: transparent; }
+.approval-invoice-table { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.approval-invoice-table th { width: 96px; padding: 6px 10px; text-align: left; font-weight: 500; color: var(--muted, #71717a); background: var(--surface-soft); white-space: nowrap; vertical-align: top; }
+.approval-invoice-table td { padding: 6px 10px; }
+.approval-invoice-table tr + tr th, .approval-invoice-table tr + tr td { border-top: 1px solid var(--line); }

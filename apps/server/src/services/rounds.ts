@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { canonicalJson, sha256Hex } from "@untangle/db";
-import type { SettlementPlan } from "@untangle/engine";
-import { planSettlement } from "@untangle/engine";
-import { consents, obligations, rounds, setoffs, statements, transferLegs, transfers, networks } from "@untangle/db";
+import type { SettlementPlan, Loop } from "@untangle/engine";
+import { findLoops, planSettlement, screenLoops } from "@untangle/engine";
+import type { FraudScreenMeta, FraudScreenInvoiceMeta, ScreenedLoop } from "@untangle/engine";
+import { businesses, consents, obligations, rounds, setoffs, statements, transferLegs, transfers, networks } from "@untangle/db";
 import { executeSetoffs } from "@untangle/executor";
 import type { AppContext } from "../context.ts";
 import type { JobResult } from "../jobs.ts";
@@ -20,11 +21,31 @@ interface RoundStatement {
   networkId: string;
   currency: string;
   planHash: string;
+  netBefore: number;
+  netAfter: number;
   setoffs: { obligationId: string; invoiceId: string; role: "creditor" | "debtor"; counterpartyId: string; amountMinor: number; outstandingBeforeMinor: number; remainingAfterMinor: number }[];
   pays: { transferId: string; payeeId: string; amountMinor: number }[];
   receives: { transferId: string; payerId: string; amountMinor: number }[];
   passThrough: { transferId: string; obligationId: string; role: "creditor" | "debtor"; amountMinor: number }[];
   totals: { clearedMinor: number; paysMinor: number; receivesMinor: number };
+}
+
+export interface HeldForConfirmation {
+  obligationId: string;
+  missingSide: "debtor" | "creditor";
+}
+
+export interface HeldForFraudReview {
+  loopId: string;
+  reasons: string[];
+  memberIds: readonly string[];
+}
+
+export interface ReplannedLoops {
+  /** Loops from the previous round that contained now-disputed obligations and therefore broke. */
+  brokeLoops: Loop[];
+  /** Loops the engine found this time, without the disputed debt. */
+  newLoops: Loop[];
 }
 
 export interface RoundView {
@@ -51,6 +72,72 @@ export interface RoundView {
   statements: { businessId: string; statementHash: string; body: unknown }[];
   consents: { businessId: string; method: string; createdAt: Date }[];
   pendingConsents: string[];
+  heldForConfirmation: HeldForConfirmation[];
+  heldForFraudReview: HeldForFraudReview[];
+  replanned: ReplannedLoops | null;
+}
+
+type PlannedMeta = {
+  heldForConfirmation: HeldForConfirmation[];
+  heldForFraudReview: HeldForFraudReview[];
+  replanned: ReplannedLoops | null;
+};
+
+function obligationsToMeta(rows: readonly (typeof obligations.$inferSelect)[], businessesById: Map<string, { createdAt: Date }>): FraudScreenMeta {
+  const createdAtByBusiness: Record<string, string> = {};
+  for (const [id, business] of businessesById) createdAtByBusiness[id] = business.createdAt.toISOString();
+  const invoices: Record<string, FraudScreenInvoiceMeta> = {};
+  for (const row of rows) {
+    invoices[row.id] = {
+      debtor: row.debtorId,
+      creditor: row.creditorId,
+      createdAt: row.createdAt.toISOString(),
+      amount: row.outstandingMinor,
+    };
+  }
+  return { createdAtByBusiness, invoices };
+}
+
+/** Which of `rows` belong to loops the fraud screen holds; returns the held loop reports + the excluded member ids. */
+function screenHeldLoops(rows: readonly (typeof obligations.$inferSelect)[], businessesById: Map<string, { createdAt: Date }>): { held: HeldForFraudReview[]; excludedMemberIds: Set<string> } {
+  if (rows.length === 0) return { held: [], excludedMemberIds: new Set() };
+  const obligationsForPlan = rows.map((row) => ({ id: row.id, debtor: row.debtorId, creditor: row.creditorId, amount: row.outstandingMinor }));
+  const exploratory = planSettlement(obligationsForPlan);
+  const loops = findLoops(obligationsForPlan, exploratory.setoffs);
+  if (loops.length === 0) return { held: [], excludedMemberIds: new Set() };
+  const meta = obligationsToMeta(rows, businessesById);
+  const screened = screenLoops(loops, meta);
+  const heldResults = screened.filter((result) => result.held);
+  const excludedMemberIds = new Set<string>();
+  const held: HeldForFraudReview[] = heldResults.map((result: ScreenedLoop) => {
+    const loop = loops.find((item) => item.id === result.loopId);
+    const memberIds = loop?.memberIds ?? [];
+    for (const id of memberIds) excludedMemberIds.add(id);
+    return { loopId: result.loopId, reasons: [...result.reasons], memberIds };
+  });
+  return { held, excludedMemberIds };
+}
+
+/** Loops from the most recent previous round that contained a currently-disputed obligation. */
+async function brokeLoops(ctx: AppContext, tx: AppContext["db"], networkId: string): Promise<Loop[]> {
+  const disputedIds = (await tx.select({ id: obligations.id }).from(obligations).where(and(
+    eq(obligations.networkId, networkId),
+    eq(obligations.status, "disputed"),
+  ))).map((row) => row.id);
+  if (disputedIds.length === 0) return [];
+  const [previous] = await tx.select({ plan: rounds.plan }).from(rounds)
+    .where(and(eq(rounds.networkId, networkId), inArray(rounds.status, ["consenting", "executing", "settling", "closed", "failed"])))
+    .orderBy(desc(rounds.createdAt)).limit(1);
+  const prevPlan = previous?.plan as (SettlementPlan & { _meta?: PlannedMeta }) | null;
+  if (prevPlan === null || prevPlan === undefined) return [];
+  const setoffIds = Object.keys(prevPlan.setoffs).filter((id) => (prevPlan.setoffs[id] ?? 0) > 0);
+  if (setoffIds.length === 0) return [];
+  const prevObligations = await tx.select().from(obligations).where(inArray(obligations.id, setoffIds));
+  const byId = new Map(prevObligations.map((row) => [row.id, row]));
+  const prevObligationsForPlan = prevObligations.map((row) => ({ id: row.id, debtor: row.debtorId, creditor: row.creditorId, amount: (prevPlan.setoffs[row.id] ?? 0) }));
+  const prevLoops = findLoops(prevObligationsForPlan, prevPlan.setoffs);
+  const disputedSet = new Set(disputedIds);
+  return prevLoops.filter((loop) => loop.memberIds.some((id) => disputedSet.has(id)));
 }
 
 export async function planRound(ctx: AppContext, networkId: string): Promise<RoundView> {
@@ -64,7 +151,7 @@ export async function planRound(ctx: AppContext, networkId: string): Promise<Rou
     )).limit(1);
     if (active.length > 0) throw new DomainError(409, "ROUND_IN_PROGRESS", "A settlement round is already in progress");
 
-    const eligible = await tx.select().from(obligations).where(and(
+    const baseEligible = await tx.select().from(obligations).where(and(
       eq(obligations.networkId, networkId),
       inArray(obligations.status, ["invoiced", "partially_settled"]),
       sql`${obligations.outstandingMinor} > 0`,
@@ -72,21 +159,45 @@ export async function planRound(ctx: AppContext, networkId: string): Promise<Rou
       sql`${obligations.paypalInvoiceId} is not null`,
       eq(obligations.currency, network.currency),
     ));
+
+    // Two-sided confirmation: only both sides confirmed may enter a round.
+    const heldForConfirmation: HeldForConfirmation[] = [];
+    const eligible = baseEligible.filter((row) => {
+      const missing = row.debtorConfirmedAt === null ? "debtor" : row.creditorConfirmedAt === null ? "creditor" : null;
+      if (missing !== null) {
+        heldForConfirmation.push({ obligationId: row.id, missingSide: missing });
+        return false;
+      }
+      return true;
+    });
     if (eligible.length === 0) throw new DomainError(409, "NOTHING_TO_SETTLE", "There are no eligible obligations to settle");
 
-    const plan = planSettlement(eligible.map((row) => ({
+    const businessRows = await tx.select({ id: businesses.id, createdAt: businesses.createdAt }).from(businesses).where(eq(businesses.networkId, networkId));
+    const businessesById = new Map(businessRows.map((row) => [row.id, { createdAt: row.createdAt }]));
+
+    // Fraud-ring screen: loops the screen holds are excluded from clearing.
+    const { held, excludedMemberIds } = screenHeldLoops(eligible, businessesById);
+    const planSet = eligible.filter((row) => !excludedMemberIds.has(row.id));
+    if (planSet.length === 0) throw new DomainError(409, "NOTHING_TO_SETTLE", "Every eligible obligation is held for fraud review");
+
+    const plan = planSettlement(planSet.map((row) => ({
       id: row.id,
       debtor: row.debtorId,
       creditor: row.creditorId,
       amount: row.outstandingMinor,
     })));
+    const replanned = {
+      brokeLoops: await brokeLoops(ctx, tx, networkId),
+      newLoops: findLoops(planSet.map((row) => ({ id: row.id, debtor: row.debtorId, creditor: row.creditorId, amount: row.outstandingMinor })), plan.setoffs),
+    };
+
     const positiveSetoffs = Object.fromEntries(Object.entries(plan.setoffs).filter(([, amount]) => amount > 0));
     const planHash = sha256Hex(canonicalJson({ setoffs: positiveSetoffs, transfers: plan.transfers }));
     const roundId = randomUUID();
     const transferData = plan.transfers.map((transfer) => ({ ...transfer, id: randomUUID() }));
-    const obligationById = new Map(eligible.map((row) => [row.id, row]));
+    const obligationById = new Map(planSet.map((row) => [row.id, row]));
 
-    await tx.insert(rounds).values({ id: roundId, networkId, status: "consenting", plan, planHash });
+    await tx.insert(rounds).values({ id: roundId, networkId, status: "consenting", plan: { ...plan, _meta: { heldForConfirmation, heldForFraudReview: held, replanned } }, planHash });
 
     const setoffRows = Object.entries(positiveSetoffs).map(([obligationId, amountMinor]) => ({ roundId, obligationId, amountMinor, status: "pending" }));
     if (setoffRows.length > 0) await tx.insert(setoffs).values(setoffRows);
@@ -110,6 +221,12 @@ export async function planRound(ctx: AppContext, networkId: string): Promise<Rou
       }))));
     }
 
+    const netBefore = new Map<string, number>();
+    for (const row of planSet) {
+      netBefore.set(row.creditorId, (netBefore.get(row.creditorId) ?? 0) + row.outstandingMinor);
+      netBefore.set(row.debtorId, (netBefore.get(row.debtorId) ?? 0) - row.outstandingMinor);
+    }
+
     const statementBusinesses = new Set<string>();
     const statementBodies = new Map<string, RoundStatement>();
     const getBody = (businessId: string): RoundStatement => {
@@ -118,6 +235,8 @@ export async function planRound(ctx: AppContext, networkId: string): Promise<Rou
       if (body === undefined) {
         body = {
           roundId, businessId, networkId, currency: network.currency, planHash,
+          netBefore: netBefore.get(businessId) ?? 0,
+          netAfter: netBefore.get(businessId) ?? 0,
           setoffs: [], pays: [], receives: [], passThrough: [],
           totals: { clearedMinor: 0, paysMinor: 0, receivesMinor: 0 },
         };
@@ -172,7 +291,7 @@ export async function planRound(ctx: AppContext, networkId: string): Promise<Rou
       return { roundId, businessId, statementHash: sha256Hex(canonicalJson(body)), body };
     });
     if (statementRows.length > 0) await tx.insert(statements).values(statementRows);
-    return { roundId, planHash, stats: plan.stats };
+    return { roundId, planHash, stats: plan.stats, meta: { heldForConfirmation, heldForFraudReview: held, replanned } as PlannedMeta };
   });
 
   await ctx.bus.emit(`network:${networkId}`, "round.planned", {
@@ -181,6 +300,12 @@ export async function planRound(ctx: AppContext, networkId: string): Promise<Rou
     stats: { ...created.stats, leverage: created.stats.leverage === null ? null : String(created.stats.leverage) },
   });
   return getRound(ctx, created.roundId);
+}
+
+function metaFromPlan(plan: SettlementPlan | null): PlannedMeta {
+  if (plan === null) return { heldForConfirmation: [], heldForFraudReview: [], replanned: null };
+  const meta = (plan as SettlementPlan & { _meta?: PlannedMeta })._meta;
+  return meta ?? { heldForConfirmation: [], heldForFraudReview: [], replanned: null };
 }
 
 export async function getRound(ctx: AppContext, roundId: string): Promise<RoundView> {
@@ -209,6 +334,7 @@ export async function getRound(ctx: AppContext, roundId: string): Promise<RoundV
   }
   const consented = new Set(consentRows.map((row) => row.businessId));
   const plan = round.plan as SettlementPlan | null;
+  const meta = metaFromPlan(plan);
   return {
     id: round.id,
     networkId: round.networkId,
@@ -233,6 +359,9 @@ export async function getRound(ctx: AppContext, roundId: string): Promise<RoundV
     statements: statementRows.map((row) => ({ businessId: row.businessId, statementHash: row.statementHash, body: row.body })),
     consents: consentRows.map((row) => ({ businessId: row.businessId, method: row.method, createdAt: row.createdAt })),
     pendingConsents: statementRows.map((row) => row.businessId).filter((businessId) => !consented.has(businessId)).sort(),
+    heldForConfirmation: meta.heldForConfirmation,
+    heldForFraudReview: meta.heldForFraudReview,
+    replanned: meta.replanned,
   };
 }
 

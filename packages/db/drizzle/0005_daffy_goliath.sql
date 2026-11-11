@@ -1,0 +1,1 @@
+ALTER TABLE "obligations" ADD COLUMN "dispute_reason" text;

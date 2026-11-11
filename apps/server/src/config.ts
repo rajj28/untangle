@@ -25,6 +25,8 @@ export interface Config {
   agGridLicenseKey?: string;
   /** When set, every write under /api needs this code in the x-demo-token header (judges get it with the demo link). */
   demoWriteToken?: string;
+  /** HMAC key for signed two-sided confirmation links; falls back to the master key. */
+  confirmSecret: Buffer;
 }
 
 const nonEmpty = z.string().trim().min(1);
@@ -43,6 +45,7 @@ const baseSchema = z.object({
   AI_RPM: z.string().regex(/^\d+$/).optional(),
   AG_GRID_LICENSE_KEY: z.string().optional(),
   DEMO_WRITE_TOKEN: z.string().trim().min(8, "must be at least 8 characters").optional().or(z.literal("")),
+  CONFIRM_SECRET: z.string().regex(/^[0-9a-fA-F]{64}$/, "must be exactly 64 hexadecimal characters").optional(),
 });
 
 export function loadConfig(env: Record<string, string | undefined> = process.env): Config {
@@ -107,5 +110,6 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     ...(parsed.GEMINI_API_KEY === undefined || parsed.GEMINI_API_KEY.length === 0 ? {} : { geminiApiKey: parsed.GEMINI_API_KEY }),
     ...(parsed.AG_GRID_LICENSE_KEY === undefined || parsed.AG_GRID_LICENSE_KEY.trim().length === 0 ? {} : { agGridLicenseKey: parsed.AG_GRID_LICENSE_KEY.trim() }),
     ...(parsed.DEMO_WRITE_TOKEN === undefined || parsed.DEMO_WRITE_TOKEN === "" ? {} : { demoWriteToken: parsed.DEMO_WRITE_TOKEN }),
+    confirmSecret: parsed.CONFIRM_SECRET === undefined ? Buffer.from(parsed.MASTER_KEY, "hex") : Buffer.from(parsed.CONFIRM_SECRET, "hex"),
   };
 }

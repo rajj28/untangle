@@ -12,6 +12,7 @@ import { syncObligation } from "../services/obligations.ts";
 import { approvalViews, finishRun, startRun, stepper } from "./runs.ts";
 import type { AgentName } from "./runs.ts";
 import { policyFor } from "./policies.ts";
+import { guardApproval } from "./guard.ts";
 import { short, usd } from "./common.ts";
 
 type ApprovalRow = typeof approvals.$inferSelect;
@@ -110,7 +111,7 @@ async function issueInvoice(ctx: AppContext, approval: ApprovalRow) {
   const [obligation] = await ctx.db.insert(obligations).values({
     networkId: approval.networkId, debtorId: debtor.id, creditorId: creditor.id, amountMinor, outstandingMinor: amountMinor, currency,
     dueOn, description: payload.item.slice(0, 200), status: "invoiced", paypalInvoiceId: invoiceId,
-    debtorConfirmedAt: ctx.now(), creditorConfirmedAt: ctx.now(),
+    creditorConfirmedAt: ctx.now(),
   }).onConflictDoNothing().returning({ id: obligations.id });
   if (obligation !== undefined) await syncObligation(ctx, obligation.id);
   await ctx.db.update(claims).set({ status: "matched", obligationId: obligation?.id ?? null }).where(eq(claims.id, claim.id));
@@ -191,7 +192,7 @@ async function adjustInvoice(ctx: AppContext, approval: ApprovalRow) {
   const [row] = await ctx.db.insert(obligations).values({
     networkId: old.networkId, debtorId: old.debtorId, creditorId: old.creditorId, amountMinor: payload.agreedMinor, outstandingMinor: payload.agreedMinor,
     currency: old.currency, dueOn: old.dueOn, description: old.description, status: "invoiced", paypalInvoiceId: invoiceId,
-    debtorConfirmedAt: ctx.now(), creditorConfirmedAt: ctx.now(),
+    creditorConfirmedAt: ctx.now(),
   }).onConflictDoNothing().returning({ id: obligations.id });
   if (row !== undefined) await syncObligation(ctx, row.id);
   await step({ kind: "decision", title: `Reissued as ${invoiceId} for the agreed ${usd(payload.agreedMinor, old.currency)}` });
@@ -210,6 +211,22 @@ export async function decideApproval(ctx: AppContext, approvalId: string, decisi
         if (payload.claimId !== undefined) await ctx.db.update(claims).set({ status: "rejected" }).where(eq(claims.id, payload.claimId));
       }
     } else {
+      // "The AI proposes, fixed rules decide": run the deterministic guard before
+      // any proposal can be approved. A blocked proposal is stored as a blocked
+      // approval with the rule that fired and the offending excerpt.
+      const guard = await guardApproval(ctx, { kind: row.kind, businessId: row.businessId, payload: row.payload as Record<string, unknown> });
+      if (!guard.ok) {
+        await ctx.db.update(approvals).set({
+          status: "blocked",
+          decidedAt: ctx.now(),
+          blockedRule: guard.rule,
+          blockedExcerpt: guard.excerpt,
+        }).where(and(eq(approvals.id, approvalId), eq(approvals.status, "pending")));
+        await ctx.bus.emit(row.runId === null ? `network:${row.networkId}` : `agent:${row.runId}`, "agent.approval_blocked", {
+          approvalId, rule: guard.rule, excerpt: guard.excerpt, agent: row.agent as AgentName,
+        });
+        return approvalById(ctx, approvalId);
+      }
       await ctx.db.update(approvals).set({ status: "approved", decidedAt: ctx.now() }).where(and(eq(approvals.id, approvalId), eq(approvals.status, "pending")));
       if (row.kind !== "pay_checkout") {
         try {

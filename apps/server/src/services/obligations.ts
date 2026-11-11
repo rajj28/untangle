@@ -19,6 +19,9 @@ export interface ObligationView {
   protected: boolean;
   dueOn: string | null;
   description: string | null;
+  debtorConfirmedAt: string | null;
+  creditorConfirmedAt: string | null;
+  disputeReason: string | null;
 }
 
 export interface ObligationHistory {
@@ -44,12 +47,19 @@ export async function listObligations(ctx: AppContext, networkId: string): Promi
     protected: obligations.protected,
     dueOn: obligations.dueOn,
     description: obligations.description,
+    debtorConfirmedAt: obligations.debtorConfirmedAt,
+    creditorConfirmedAt: obligations.creditorConfirmedAt,
+    disputeReason: obligations.disputeReason,
   }).from(obligations)
     .innerJoin(debtor, eq(obligations.debtorId, debtor.id))
     .innerJoin(creditor, eq(obligations.creditorId, creditor.id))
     .where(eq(obligations.networkId, networkId))
     .orderBy(asc(obligations.createdAt));
-  return rows;
+  return rows.map((row) => ({
+    ...row,
+    debtorConfirmedAt: row.debtorConfirmedAt?.toISOString() ?? null,
+    creditorConfirmedAt: row.creditorConfirmedAt?.toISOString() ?? null,
+  }));
 }
 
 export async function networkSummary(ctx: AppContext, networkId: string) {

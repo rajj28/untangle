@@ -18,6 +18,9 @@ import { Skeleton } from "./ui/Skeleton.tsx";
 
 const DeskApp = lazy(() => import("./desk/DeskApp.tsx"));
 const LandingPage = lazy(() => import("./landing/LandingPage.tsx"));
+const ConfirmPage = lazy(() => import("./views/Confirm.tsx").then((module) => ({ default: module.Confirm })));
+const JudgePage = lazy(() => import("./views/judge/JudgePage.tsx").then((module) => ({ default: module.JudgePage })));
+const JudgePhonePage = lazy(() => import("./views/judge/JudgePhonePage.tsx").then((module) => ({ default: module.JudgePhonePage })));
 
 function readTheme(): ThemeMode {
   try {
@@ -146,8 +149,12 @@ export default function AppV2() {
   };
 
   let content: ReactNode;
+  // The confirmation page is a public, signed link — it must render without any API bootstrap.
+  if (route.kind === "confirm") content = <Suspense fallback={<main className="min-h-screen bg-[var(--surface-muted)]" />}><ConfirmPage token={route.token} /></Suspense>;
+  // The judge desk and its phone page are public sandbox playgrounds — no main-network bootstrap needed.
+  else if (route.kind === "judge") content = <Suspense fallback={<main className="min-h-screen bg-[var(--surface-muted)]" />}>{route.phone ? <JudgePhonePage token={route.token ?? ""} /> : <JudgePage />}</Suspense>;
   // The landing page never waits on the API: live figures fill in when they arrive.
-  if (route.kind === "landing") content = <Suspense fallback={<div className="min-h-screen bg-[#0a0f1a]" />}>
+  else if (route.kind === "landing") content = <Suspense fallback={<div className="min-h-screen bg-[#0a0f1a]" />}>
     <LandingPage summary={summaryQuery.data} onOpenDesk={openDesk} onOpenBusiness={() => navigate({ kind: "picker" })} />
   </Suspense>;
   else if (dataLoading) content = <main className="app-shell h-full"><Skeleton variant="card" count={3} className="mx-auto max-w-xl p-5" /></main>;

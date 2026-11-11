@@ -61,14 +61,18 @@ describe("database schema", () => {
     `);
     const rows = (result as unknown as { rows: Array<{ table_name: string }> }).rows;
     expect(rows.map((row) => row.table_name).sort()).toEqual([
+      "agent_runs",
       "ai_cache",
+      "approvals",
       "businesses",
       "claims",
       "consents",
       "events",
       "evidence",
       "jobs",
+      "judge_sessions",
       "negotiations",
+      "networks",
       "obligations",
       "operations",
       "passkeys",
@@ -81,7 +85,6 @@ describe("database schema", () => {
       "transfers",
       "users",
       "webhook_inbox",
-      "networks",
     ].sort());
   });
 

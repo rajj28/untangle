@@ -1,0 +1,24 @@
+name: keepalive
+
+on:
+  schedule:
+    # Keep the free-tier Render instance awake during judging.
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          for i in 1 2 3; do
+            if curl -fsS https://untangle-5isb.onrender.com/api/health > /dev/null; then
+              echo "health check passed (attempt $i)"
+              exit 0
+            fi
+            echo "attempt $i failed; retrying…"
+            sleep 20
+          done
+          echo "health check failed after 3 attempts" >&2
+          exit 1

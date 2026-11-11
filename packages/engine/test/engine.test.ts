@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { clearLoops, planSettlement, settleChains } from "../src/index.ts";
+import { clearLoops, findLoops, planSettlement, settleChains } from "../src/index.ts";
 import type { Obligation } from "../src/index.ts";
 import { bruteMaxCleared, netPositions, referenceMaxCleared } from "./reference.ts";
 
@@ -214,5 +214,52 @@ describe("planSettlement", () => {
     const plan = planSettlement(obs);
     expect(performance.now() - t0).toBeLessThan(2000);
     expect(plan.stats.clearedByLoops).toBe(referenceMaxCleared(obs));
+  });
+});
+
+describe("findLoops", () => {
+  it("finds the single loop in the bakery triangle", () => {
+    const plan = planSettlement(bakery);
+    const loops = findLoops(bakery, plan.setoffs);
+    expect(loops).toHaveLength(1);
+    expect(loops[0]!.amount).toBe(2400);
+    expect(new Set(loops[0]!.memberIds)).toEqual(new Set(["a", "b", "c"]));
+  });
+
+  it("finds two disjoint loops", () => {
+    const obs: Obligation[] = [
+      { id: "a", debtor: "A", creditor: "B", amount: 100 },
+      { id: "b", debtor: "B", creditor: "A", amount: 100 },
+      { id: "c", debtor: "X", creditor: "Y", amount: 50 },
+      { id: "d", debtor: "Y", creditor: "X", amount: 50 },
+    ];
+    const plan = planSettlement(obs);
+    const loops = findLoops(obs, plan.setoffs);
+    expect(loops).toHaveLength(2);
+    expect(loops.reduce((s, l) => s + l.amount, 0)).toBe(150);
+  });
+
+  it("decomposes the entire cleared flow into cycles", () => {
+    fc.assert(
+      fc.property(obligationsArb(8, 24, 1000), (obs) => {
+        const plan = planSettlement(obs);
+        const loops = findLoops(obs, plan.setoffs);
+        for (const loop of loops) {
+          expect(loop.amount).toBeGreaterThan(0);
+          expect(loop.memberIds.length).toBeGreaterThanOrEqual(2);
+        }
+        // Every cleared unit of an obligation is assigned to exactly one loop
+        // that contains it, so the loops' amounts must reconstruct each set-off.
+        for (const o of obs) {
+          const so = plan.setoffs[o.id] ?? 0;
+          if (so === 0) continue;
+          const covered = loops
+            .filter((loop) => loop.memberIds.includes(o.id))
+            .reduce((s, loop) => s + loop.amount, 0);
+          expect(covered).toBe(so);
+        }
+      }),
+      { numRuns: 200 },
+    );
   });
 });

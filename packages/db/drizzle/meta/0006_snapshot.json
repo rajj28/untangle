@@ -1,0 +1,6 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "id": "0006_judge_sessions",
+  "prevId": "0005_daffy_goliath"
+}

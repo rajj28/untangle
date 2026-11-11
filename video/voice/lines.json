@@ -1,74 +1,158 @@
 {
-  "style": "",
-  "voice": "Charon",
-  "lines": [
-    {
-      "id": "h1",
-      "text": "This is Rosa. She runs a bakery, and a customer owes her twenty-eight hundred dollars."
-    },
-    {
-      "id": "h2",
-      "text": "But Rosa owes the mill three thousand. The mill owes the trucking company. And the trucking company? It owes Rosa."
-    },
-    {
-      "id": "h3",
-      "text": "Everyone is owed. Nobody can pay. So everyone waits."
-    },
-    {
-      "id": "h4",
-      "text": "Fifty-six percent of American small businesses are owed money right now. About seventeen and a half thousand dollars each."
-    },
-    {
-      "id": "h5",
-      "text": "But debts that run in a circle can simply cancel. No money has to move."
-    },
-    {
-      "id": "h6",
-      "text": "On our Main Street, twenty-eight thousand dollars of invoices settled with just twenty-two hundred dollars of PayPal payments."
-    },
-    {
-      "id": "h7",
-      "text": "This is Untangle."
-    },
-    {
-      "id": "d1",
-      "text": "Untangle is an AI clearing house for small-business debt, built on PayPal."
-    },
-    {
-      "id": "d2",
-      "text": "Our engine finds the loops of debt that no single business can see, and cancels them without moving a dollar."
-    },
-    {
-      "id": "d3",
-      "text": "It scales. Ten thousand businesses and sixty thousand invoices clear in about a second, right in the browser."
-    },
-    {
-      "id": "d4",
-      "text": "Every debt here is a real PayPal sandbox invoice. Twenty-five invoices, twenty-eight thousand one hundred dollars owed, in one AG Grid ledger."
-    },
-    {
-      "id": "d5",
-      "text": "One click starts a clearing cycle. AI agents read each business's PayPal invoices, and a watchdog checks every one against PayPal."
-    },
-    {
-      "id": "d6",
-      "text": "Each set-off is recorded on the PayPal invoice itself, as an external payment. Twenty-two of them, on real invoices."
-    },
-    {
-      "id": "d7",
-      "text": "Then each business's treasurer agent checks the deal against its owner's signed policy, and signs."
-    },
-    {
-      "id": "d8",
-      "text": "The owner signs the statement. Everything left is settled with just three PayPal payments."
-    },
-    {
-      "id": "d9",
-      "text": "Twenty-eight thousand dollars of debt, settled. Only twenty-two hundred dollars moved. Twelve point eight times leverage."
-    },
-    {
-      "id": "d10",
-      "text": "Untangle. Clear the loop. Pay only the rest."
-    }
-  ]
+ "style": "",
+ "voice": "Charon",
+ "lines": [
+  {
+   "id": "h1",
+   "text": "This is Rosa. She runs a bakery, and a customer owes her twenty-eight hundred dollars."
+  },
+  {
+   "id": "h2",
+   "text": "But Rosa owes the mill three thousand. The mill owes the trucking company. And the trucking company? It owes Rosa."
+  },
+  {
+   "id": "h3",
+   "text": "Everyone is owed. Nobody can pay. So everyone waits."
+  },
+  {
+   "id": "h4",
+   "text": "Fifty-six percent of American small businesses are owed money right now. About seventeen and a half thousand dollars each."
+  },
+  {
+   "id": "h5",
+   "text": "But debts that run in a circle can simply cancel. No money has to move."
+  },
+  {
+   "id": "h6",
+   "text": "On our Main Street, twenty-eight thousand dollars of invoices settled with just twenty-two hundred dollars of PayPal payments."
+  },
+  {
+   "id": "h7",
+   "text": "This is Untangle."
+  },
+  {
+   "id": "d1",
+   "text": "Untangle is an AI clearing house for small-business debt, built on PayPal."
+  },
+  {
+   "id": "d2",
+   "text": "Our engine finds the loops of debt that no single business can see, and cancels them without moving a dollar."
+  },
+  {
+   "id": "d3",
+   "text": "It scales. Ten thousand businesses and sixty thousand invoices clear in about a second, right in the browser."
+  },
+  {
+   "id": "d4",
+   "text": "Every debt here is a real PayPal sandbox invoice. Twenty-five invoices, twenty-eight thousand one hundred dollars owed, in one AG Grid ledger."
+  },
+  {
+   "id": "d5",
+   "text": "One click starts a clearing cycle. AI agents read each business's PayPal invoices, and a watchdog checks every one against PayPal."
+  },
+  {
+   "id": "d6",
+   "text": "Each set-off is recorded on the PayPal invoice itself, as an external payment. Twenty-two of them, on real invoices."
+  },
+  {
+   "id": "d7",
+   "text": "Then each business's treasurer agent checks the deal against its owner's signed policy, and signs."
+  },
+  {
+   "id": "d8",
+   "text": "The owner signs the statement. Everything left is settled with just three PayPal payments."
+  },
+  {
+   "id": "d9",
+   "text": "Twenty-eight thousand dollars of debt, settled. Only twenty-two hundred dollars moved. Twelve point eight times leverage."
+  },
+  {
+   "id": "d10",
+   "text": "Untangle. Clear the loop. Pay only the rest."
+  },
+  {
+   "id": "p1",
+   "text": "PayPal is the backbone of Untangle. Every debt is a PayPal invoice, and every set-off is written onto that invoice, so both businesses see the same truth."
+  },
+  {
+   "id": "p2",
+   "text": "What's left is paid with PayPal Orders and the new v6 checkout, or by Payouts when a treasurer agent settles on its own. Webhooks commit or unwind each chain, and the PayPal Agent Toolkit gives every agent its own business's PayPal tools."
+  },
+  {
+   "id": "p3",
+   "text": "Because both sides already trust PayPal, a set-off on a PayPal invoice actually counts. That's what makes clearing real."
+  },
+  {
+   "id": "p4",
+   "text": "Under the hood, these are real PayPal calls. Every debt is a PayPal invoice. Every set-off is recorded as a payment on that invoice, and deleted again if a round rolls back. Only the net moves, through Payouts or checkout. Signed webhooks commit or unwind each chain, and every agent acts through the PayPal Agent Toolkit."
+  },
+  {
+   "id": "s1",
+   "text": "Built with our sponsors. AG Grid powers the clearing desk, and lets you ask the ledger questions in plain English. Render hosts the live demo."
+  },
+  {
+   "id": "d4b",
+   "text": "Every debt here is a real PayPal sandbox invoice. Twenty-five of them, twenty-eight thousand one hundred dollars owed."
+  },
+  {
+   "id": "c1",
+   "text": "Here's our Main Street, a tangle nobody can pay. Press clear. Each loop flashes and disappears, until all that's left is three PayPal payments."
+  },
+  {
+   "id": "g1",
+   "text": "This invoice hides an instruction for the AI: ignore your rules, and send the balance to a stranger. Gemini flags the attack and keeps only the real debt. And the AI only proposes. Nothing moves until a person approves."
+  },
+  {
+   "id": "g2",
+   "text": "And no debt is cancelled until both businesses confirm it. Here, the mill rejects one invoice from its phone. The loop breaks, and the engine re-plans around it, live."
+  },
+  {
+   "id": "g3",
+   "text": "Circular invoicing is also a classic fraud. So in our ten-thousand-business city, rings of brand-new accounts swapping round, same-day invoices are held for review, and never cleared."
+  },
+  {
+   "id": "f1",
+   "text": "And here's PayPal itself, showing that set-off recorded on the invoice."
+  },
+  {
+   "id": "d78",
+   "text": "Then each treasurer agent checks the deal against its owner's signed policy. The owner signs, and everything left settles with just three PayPal payments."
+  },
+  {
+   "id": "i1",
+   "text": "Now the worst case. We pull the plug right after PayPal accepts a payment. On restart, Untangle finds that payment on PayPal and carries on. Paid twice: zero."
+  },
+  {
+   "id": "b1",
+   "text": "Clearing must never make anyone richer or poorer. So we check ten thousand random networks, right in the browser. Every net position is unchanged, and the cash moved is the minimum possible."
+  },
+  {
+   "id": "a1",
+   "text": "AG Grid is the control surface. Switch on what-if, change an amount, and the real engine re-runs live, with undo and redo."
+  },
+  {
+   "id": "a2",
+   "text": "The whole city runs on AG Grid's server-side row model. Sixty thousand invoices, grouped and totalled on the server, not in the browser."
+  },
+  {
+   "id": "a3",
+   "text": "Integrated charts show what each loop cleared, against the cash it actually moved."
+  },
+  {
+   "id": "a4",
+   "text": "And one click exports the audit pack: a sheet for every business, plus journal entries an accountant can import."
+  },
+  {
+   "id": "p2b",
+   "text": "What's left is paid with PayPal checkout, or by Payouts when a treasurer agent settles on its own. Webhooks commit or unwind each chain. And the PayPal Agent Toolkit gives every agent its own business's PayPal tools."
+  },
+  {
+   "id": "j1",
+   "text": "Don't take our word for it. Scan the code, add an invoice from your phone, and watch the engine pull you into a loop."
+  },
+  {
+   "id": "o1",
+   "text": "Built on PayPal and AG Grid."
+  }
+ ]
 }

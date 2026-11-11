@@ -1,0 +1,115 @@
+[
+{
+"note": "v3 re-records: bigger UI, no cancelled rows"
+},
+{
+"viewport": [
+1200,
+675,
+1.6,
+false
+]
+},
+{
+"goto": "http://localhost:3000/#/desk/ledger"
+},
+{
+"wait": 7000
+},
+{
+"record": "desk-ledger2"
+},
+{
+"wait": 2500
+},
+{
+"click": {
+"text": "Amount"
+},
+"moveMs": 900
+},
+{
+"wait": 700
+},
+{
+"click": {
+"text": "Amount"
+},
+"moveMs": 200
+},
+{
+"wait": 3500
+},
+{
+"stop": true
+},
+{
+"viewport": [
+960,
+540,
+2,
+false
+]
+},
+{
+"gotoJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3').then(r => r.json()).then(s => location.origin + '/#/me/' + s.businesses.find(b => b.name === 'Green Valley Dairy').id + '/assistant')"
+},
+{
+"wait": 7000
+},
+{
+"scrollTo": "input[type=file]",
+"block": "center"
+},
+{
+"wait": 800
+},
+{
+"record": "poisoned-invoice2"
+},
+{
+"wait": 1000
+},
+{
+"click": {
+"text": "PDF invoice carrying an injected instruction to the AI"
+},
+"moveMs": 900
+},
+{
+"waitFor": "injection",
+"timeout": 240000
+},
+{
+"wait": 600
+},
+{
+"eval": "(() => { const el = [...document.querySelectorAll('li,p')].find(p => p.textContent.includes('injection')); el && el.scrollIntoView({ behavior: 'smooth', block: 'center' }); return !!el; })()"
+},
+{
+"wait": 5000
+},
+{
+"stop": true
+},
+{
+"viewport": [
+1440,
+860,
+2,
+false
+]
+},
+{
+"goto": "http://localhost:3000/#/desk/ledger"
+},
+{
+"wait": 7000
+},
+{
+"eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1"
+},
+{
+"shot": "gallery/desk-ledger.png"
+}
+]

@@ -2,7 +2,7 @@ import type React from "react";
 import { AbsoluteFill, Audio, Easing, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { getLength, getPointAtLength } from "@remotion/paths";
 import street from "../data/main-street.json";
-import voice from "../data/voice.json";
+import { lineFrames, VOICE_RATE } from "../program/timing";
 import { Backdrop } from "../ui/Backdrop";
 import { Arrow, arrowPath, Pill, ShopNode } from "../ui/graph";
 import type { Pt } from "../ui/graph";
@@ -13,7 +13,7 @@ type LineId = (typeof HOOK_LINES)[number];
 
 const LEAD = 10;
 const GAP = 4;
-const HOLD = 42;
+const HOLD = 20;
 
 /** Each narration line starts right after the previous one; scenes are keyed to the same starts. */
 export function hookTimeline() {
@@ -21,7 +21,7 @@ export function hookTimeline() {
   let frame = LEAD;
   for (const id of HOOK_LINES) {
     starts[id] = frame;
-    frame += Math.ceil(voice[id].seconds * FPS) + GAP;
+    frame += lineFrames(id) + GAP;
   }
   return { starts, total: frame - GAP + HOLD };
 }
@@ -137,8 +137,8 @@ export const Hook: React.FC = () => {
       <Logo start={starts.h7} />
 
       {HOOK_LINES.map((id) => (
-        <Sequence key={id} from={starts[id]} durationInFrames={Math.ceil(voice[id].seconds * FPS) + 2}>
-          <Audio src={staticFile(`voice/${id}.wav`)} />
+        <Sequence key={id} from={starts[id]} durationInFrames={lineFrames(id) + 2}>
+          <Audio src={staticFile(`voice/${id}.wav`)} playbackRate={VOICE_RATE} />
         </Sequence>
       ))}
     </AbsoluteFill>

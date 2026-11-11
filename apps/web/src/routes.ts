@@ -1,19 +1,26 @@
-export type DeskView = "ledger" | "settlement" | "network" | "matrix" | "activity" | "agents";
+export type DeskView = "ledger" | "settlement" | "network" | "matrix" | "activity" | "agents" | "city";
 export type BusinessPage = "home" | "invoices" | "assistant" | "activity";
 
 export type AppRoute =
   | { kind: "landing" }
   | { kind: "picker" }
   | { kind: "business"; businessId: string; page: BusinessPage }
-  | { kind: "desk"; view: DeskView };
+  | { kind: "desk"; view: DeskView }
+  | { kind: "confirm"; token: string }
+  | { kind: "judge"; phone?: boolean; token?: string };
 
-const DESK_VIEWS: readonly DeskView[] = ["ledger", "settlement", "network", "matrix", "activity", "agents"];
+const DESK_VIEWS: readonly DeskView[] = ["ledger", "settlement", "network", "matrix", "activity", "agents", "city"];
 const BUSINESS_PAGES: readonly BusinessPage[] = ["home", "invoices", "assistant", "activity"];
 
 export function parseRoute(hash: string): AppRoute | null {
   const path = hash.startsWith("#") ? hash.slice(1) : hash;
   if (path === "" || path === "/") return { kind: "landing" };
   if (path === "/me" || path === "/me/") return { kind: "picker" };
+  const confirmMatch = /^\/confirm\/([^/]+)\/?$/.exec(path);
+  if (confirmMatch !== null && confirmMatch[1]!.length > 0) return { kind: "confirm", token: confirmMatch[1]! };
+  if (path === "/judge" || path === "/judge/") return { kind: "judge" };
+  const phoneMatch = /^\/judge\/phone\/([^/]+)\/?$/.exec(path);
+  if (phoneMatch !== null && phoneMatch[1]!.length > 0) return { kind: "judge", phone: true, token: phoneMatch[1]! };
   const deskMatch = /^\/desk\/([^/]+)\/?$/.exec(path);
   const deskView = deskMatch?.[1];
   if (deskView !== undefined && DESK_VIEWS.includes(deskView as DeskView)) {
@@ -47,6 +54,8 @@ export function defaultRoute(width: number, rememberedBusinessId: string | null)
 export function routeHash(route: AppRoute): string {
   if (route.kind === "landing") return "#/";
   if (route.kind === "picker") return "#/me";
+  if (route.kind === "confirm") return `#/confirm/${encodeURIComponent(route.token)}`;
+  if (route.kind === "judge") return route.phone ? `#/judge/phone/${encodeURIComponent(route.token ?? "")}` : "#/judge";
   if (route.kind === "desk") return `#/desk/${route.view}`;
   return route.page === "home"
     ? `#/me/${encodeURIComponent(route.businessId)}`

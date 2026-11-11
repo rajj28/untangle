@@ -100,6 +100,7 @@ export async function approvalViews(ctx: AppContext, where: ReturnType<typeof eq
   return rows.map(({ approval, businessName }) => ({
     id: approval.id, runId: approval.runId, businessId: approval.businessId, businessName, agent: approval.agent, kind: approval.kind,
     title: approval.title, detail: approval.detail, payload: approval.payload, status: approval.status, result: approval.result,
+    blockedRule: approval.blockedRule, blockedExcerpt: approval.blockedExcerpt,
     createdAt: approval.createdAt.toISOString(), decidedAt: approval.decidedAt?.toISOString() ?? null,
   }));
 }

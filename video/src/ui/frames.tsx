@@ -1,6 +1,6 @@
 import type React from "react";
 import { Easing, interpolate, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
-import { C, fontFamily, monoFamily } from "../theme";
+import { C, fontFamily, LIVE_URL, monoFamily } from "../theme";
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
@@ -27,7 +27,7 @@ const CameraLayer: React.FC<{ shots: Shot[]; width: number; height: number; chil
 export const BrowserFrame: React.FC<{
   src: string; startFrom?: number; playbackRate?: number; shots?: Shot[]; url?: string;
   width?: number; x?: number; y?: number; tilt?: number; opacity?: number; scale?: number;
-}> = ({ src, startFrom = 0, playbackRate = 1, shots = [], url = "untangle.app/desk", width = 1600, x = 160, y = 70, tilt = 0, opacity = 1, scale = 1 }) => {
+}> = ({ src, startFrom = 0, playbackRate = 1, shots = [], url = LIVE_URL, width = 1600, x = 160, y = 70, tilt = 0, opacity = 1, scale = 1 }) => {
   const height = Math.round((width * 1080) / 1920);
   const bar = 44;
   return (

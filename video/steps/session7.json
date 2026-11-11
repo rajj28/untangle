@@ -1,0 +1,99 @@
+[
+ {
+  "note": "Settled-state clips: Before -> After collapse, PayPal says column + the real PayPal invoice page."
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "click": {
+   "text": "Review last round"
+  }
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "record": "settlement-collapse"
+ },
+ {
+  "wait": 900
+ },
+ {
+  "click": {
+   "text": "Before → After"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 2200
+ },
+ {
+  "click": {
+   "text": "Clear"
+  },
+  "moveMs": 800
+ },
+ {
+  "wait": 9000
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-collapse.png"
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/ledger"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "eval": "(() => { const b=document.querySelector('.ag-side-button button'); b&&b.click(); return !!b; })()"
+ },
+ {
+  "wait": 800
+ },
+ {
+  "record": "paypal-col"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "click": {
+   "selector": ".ag-header-cell[col-id=\"paypalSays\"]"
+  },
+  "moveMs": 1000
+ },
+ {
+  "wait": 600
+ },
+ {
+  "click": {
+   "selector": ".ag-row[row-index=\"0\"] [col-id=\"paypalSays\"]"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-paypal-col.png"
+ }
+]

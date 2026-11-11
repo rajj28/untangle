@@ -1,0 +1,9 @@
+[
+ { "viewport": [1440, 860, 2, false] },
+ { "goto": "http://localhost:3000/#/desk/ledger" }, { "wait": 8000 },
+ { "click": { "selector": "input[aria-label='Ask the ledger']" }, "moveMs": 200 }, { "type": "invoices Corner Cafe owes that are not cancelled, largest first" },
+ { "click": { "text": "Ask" }, "moveMs": 200 }, { "wait": 2000 }, { "waitForJs": "!document.body.innerText.includes('Asking…')", "timeout": 60000 }, { "wait": 2500 },
+ { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/desk-ask-ledger.png" },
+ { "goto": "http://localhost:3000/#/me/0da180a8-a127-44b4-b139-0684a2eb9b87/assistant" }, { "wait": 30000 },
+ { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/cafe-assistant.png" }
+]

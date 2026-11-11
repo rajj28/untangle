@@ -1,0 +1,181 @@
+[
+ {
+  "note": "Proof + AG Grid clips on the settled Main Street round. Desktop 1440x810 @1.333 = 1080p."
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "downloads": "downloads"
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "wait": 600
+ },
+ {
+  "record": "verify"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "click": {
+   "text": "Verify"
+  },
+  "moveMs": 900
+ },
+ {
+  "waitFor": "networks ·",
+  "timeout": 60000
+ },
+ {
+  "wait": 3500
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-verify.png"
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/ledger"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "eval": "(() => { const b=document.querySelector('.ag-side-button.ag-selected button, .ag-side-button button'); b&&b.click(); return !!b; })()"
+ },
+ {
+  "wait": 800
+ },
+ {
+  "record": "aggrid-whatif"
+ },
+ {
+  "wait": 900
+ },
+ {
+  "click": {
+   "text": "What-if"
+  },
+  "moveMs": 800
+ },
+ {
+  "wait": 1600
+ },
+ {
+  "click": {
+   "selector": ".ag-row[row-index=\"0\"] [col-id=\"amountMinor\"]"
+  },
+  "double": true,
+  "moveMs": 900
+ },
+ {
+  "wait": 400
+ },
+ {
+  "eval": "(() => { const e = document.activeElement; if (e && e.select) e.select(); return e && e.tagName; })()"
+ },
+ {
+  "type": "120000"
+ },
+ {
+  "key": "Enter"
+ },
+ {
+  "wait": 2600
+ },
+ {
+  "click": {
+   "selector": ".ag-row[row-index=\"3\"] [col-id=\"include\"] input"
+  },
+  "moveMs": 800
+ },
+ {
+  "wait": 2400
+ },
+ {
+  "click": {
+   "text": "Undo"
+  },
+  "moveMs": 700
+ },
+ {
+  "wait": 1800
+ },
+ {
+  "click": {
+   "text": "Redo"
+  },
+  "moveMs": 600
+ },
+ {
+  "wait": 1800
+ },
+ {
+  "click": {
+   "text": "Reset scenario"
+  },
+  "moveMs": 700
+ },
+ {
+  "wait": 2200
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-whatif.png"
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/city"
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "record": "aggrid-city"
+ },
+ {
+  "waitFor": "Sector / Business",
+  "timeout": 30000
+ },
+ {
+  "wait": 7000
+ },
+ {
+  "click": {
+   "selector": ".ag-row[row-index=\"0\"] .ag-group-contracted"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 2200
+ },
+ {
+  "click": {
+   "selector": ".ag-row[row-index=\"1\"] .ag-group-contracted"
+  },
+  "moveMs": 800
+ },
+ {
+  "wait": 3000
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-city.png"
+ }
+]

@@ -25,6 +25,7 @@ const config: Config = {
   demoMode: true,
   networkName: "Main Street",
   currency: "USD",
+  confirmSecret: randomBytes(32),
   businesses: mainStreetBusinesses.map((business) => {
     const slug = business.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
     return {

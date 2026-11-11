@@ -1,0 +1,38 @@
+[
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "waitFor": "Recovered after the crash",
+  "timeout": 240000
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "record": "pull-plug-recover"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "(() => { const el = [...document.querySelectorAll('[role=status]')].find(d => d.textContent.startsWith('Recovered after the crash')); el && el.animate([{ boxShadow: '0 0 0 0 rgba(13,148,136,0)' }, { boxShadow: '0 0 0 6px rgba(13,148,136,.35)' }, { boxShadow: '0 0 0 0 rgba(13,148,136,0)' }], { duration: 1600, iterations: 2 }); return !!el; })()"
+ },
+ {
+  "wait": 5500
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-plug-recover.png"
+ }
+]

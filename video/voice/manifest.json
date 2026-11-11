@@ -83,5 +83,110 @@
     "text": "Untangle. Clear the loop. Pay only the rest.",
     "seconds": 3.89,
     "model": "gemini-3.8-flash-lite-tts"
+  },
+  "p1": {
+    "text": "PayPal is the backbone of Untangle. Every debt is a PayPal invoice, and every set-off is written onto that invoice, so both businesses see the same truth.",
+    "seconds": 10.37,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "p2": {
+    "text": "What's left is paid with PayPal Orders and the new v6 checkout, or by Payouts when a treasurer agent settles on its own. Webhooks commit or unwind each chain, and the PayPal Agent Toolkit gives every agent its own business's PayPal tools.",
+    "seconds": 16.77,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "p3": {
+    "text": "Because both sides already trust PayPal, a set-off on a PayPal invoice actually counts. That's what makes clearing real.",
+    "seconds": 8.13,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "s1": {
+    "text": "Built with our sponsors. AG Grid powers the clearing desk, and lets you ask the ledger questions in plain English. Render hosts the live demo.",
+    "seconds": 10.13,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "d4b": {
+    "text": "Every debt here is a real PayPal sandbox invoice. Twenty-five of them, twenty-eight thousand one hundred dollars owed.",
+    "seconds": 7.29,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "c1": {
+    "text": "Here's our Main Street, a tangle nobody can pay. Press clear. Each loop flashes and disappears, until all that's left is three PayPal payments.",
+    "seconds": 11.13,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "g1": {
+    "text": "This invoice hides an instruction for the AI: ignore your rules, and send the balance to a stranger. Gemini flags the attack and keeps only the real debt. And the AI only proposes. Nothing moves until a person approves.",
+    "seconds": 12.93,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "g2": {
+    "text": "And no debt is cancelled until both businesses confirm it. Here, the mill rejects one invoice from its phone. The loop breaks, and the engine re-plans around it, live.",
+    "seconds": 11.01,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "g3": {
+    "text": "Circular invoicing is also a classic fraud. So in our ten-thousand-business city, rings of brand-new accounts swapping round, same-day invoices are held for review, and never cleared.",
+    "seconds": 12.53,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "f1": {
+    "text": "And here's PayPal itself, showing that set-off recorded on the invoice.",
+    "seconds": 4.65,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "d78": {
+    "text": "Then each treasurer agent checks the deal against its owner's signed policy. The owner signs, and everything left settles with just three PayPal payments.",
+    "seconds": 9.37,
+    "model": "gemini-3.8-flash-lite-tts"
+  },
+  "i1": {
+    "text": "Now the worst case. We pull the plug right after PayPal accepts a payment. On restart, Untangle finds that payment on PayPal and carries on. Paid twice: zero.",
+    "seconds": 11.73,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "b1": {
+    "text": "Clearing must never make anyone richer or poorer. So we check ten thousand random networks, right in the browser. Every net position is unchanged, and the cash moved is the minimum possible.",
+    "seconds": 11.65,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "a1": {
+    "text": "AG Grid is the control surface. Switch on what-if, change an amount, and the real engine re-runs live, with undo and redo.",
+    "seconds": 8.69,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "a2": {
+    "text": "The whole city runs on AG Grid's server-side row model. Sixty thousand invoices, grouped and totalled on the server, not in the browser.",
+    "seconds": 9.05,
+    "model": "gemini-3.8-flash-tts"
+  },
+  "a3": {
+    "text": "Integrated charts show what each loop cleared, against the cash it actually moved.",
+    "seconds": 5.64,
+    "model": "gemini-3.1-flash-tts-preview"
+  },
+  "a4": {
+    "text": "And one click exports the audit pack: a sheet for every business, plus journal entries an accountant can import.",
+    "seconds": 7.52,
+    "model": "gemini-3.1-flash-tts-preview"
+  },
+  "p2b": {
+    "text": "What's left is paid with PayPal checkout, or by Payouts when a treasurer agent settles on its own. Webhooks commit or unwind each chain. And the PayPal Agent Toolkit gives every agent its own business's PayPal tools.",
+    "seconds": 14.72,
+    "model": "gemini-3.1-flash-tts-preview"
+  },
+  "j1": {
+    "text": "Don't take our word for it. Scan the code, add an invoice from your phone, and watch the engine pull you into a loop.",
+    "seconds": 7.8,
+    "model": "gemini-3.1-flash-tts-preview"
+  },
+  "o1": {
+    "text": "Built on PayPal and AG Grid.",
+    "seconds": 3.2,
+    "model": "gemini-3.1-flash-tts-preview"
+  },
+  "p4": {
+    "text": "Under the hood, these are real PayPal calls. Every debt is a PayPal invoice. Every set-off is recorded as a payment on that invoice, and deleted again if a round rolls back. Only the net moves, through Payouts or checkout. Signed webhooks commit or unwind each chain, and every agent acts through the PayPal Agent Toolkit.",
+    "seconds": 19.57,
+    "model": "gemini-3.8-flash-lite-tts"
   }
 }

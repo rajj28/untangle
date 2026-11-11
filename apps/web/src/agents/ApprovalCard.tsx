@@ -152,6 +152,13 @@ export function ApprovalCard({
 
       <p className="mt-2 text-sm text-soft">{approval.detail}</p>
 
+      {current.status === "blocked" && (
+        <div className="mt-3 rounded-lg border border-[var(--red)]/30 bg-[var(--red-tint)] px-3 py-2 text-xs text-[var(--red)]">
+          <p className="font-semibold">Blocked by rule: {current.blockedRule ?? "guard"}</p>
+          {current.blockedExcerpt && <p className="mt-1 rounded bg-white/60 px-2 py-1 font-mono text-[10px] leading-4">“{current.blockedExcerpt}”</p>}
+        </div>
+      )}
+
       {invoicePayload !== null && (
         <table className="approval-invoice-table mt-3">
           <tbody>

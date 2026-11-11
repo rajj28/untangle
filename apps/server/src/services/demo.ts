@@ -1,10 +1,10 @@
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
-import { networks, obligations, rounds } from "@untangle/db";
+import { approvals, businesses, evidence, networks, obligations, rounds } from "@untangle/db";
 import type { AppContext } from "../context.ts";
 import { DomainError } from "../errors.ts";
 import { seedNetwork } from "../seed/seed.ts";
 
-const ARCHIVABLE = ["invoiced", "partially_settled", "settled"];
+const ARCHIVABLE = ["invoiced", "partially_settled", "settled", "disputed"];
 const RESETTABLE_ROUNDS = ["consenting", "settling"];
 
 export interface DemoResetResult {
@@ -30,6 +30,14 @@ export async function resetDemo(ctx: AppContext): Promise<DemoResetResult> {
         .where(and(eq(rounds.id, round.id), inArray(rounds.status, RESETTABLE_ROUNDS))).returning({ id: rounds.id });
       if (changed.length > 0) await ctx.bus.emit(`round:${round.id}`, "round.failed", { roundId: round.id, reason: "demo_reset" });
     }
+
+    // Uploads are de-duplicated by file hash; retire old hashes so a sample is read by Gemini again after a reset.
+    await ctx.db.update(evidence).set({ sha256: sql`${evidence.sha256} || ':reset:' || ${Date.now()}` })
+      .where(and(inArray(evidence.businessId, ctx.db.select({ id: businesses.id }).from(businesses).where(eq(businesses.networkId, network.id))), sql`${evidence.sha256} not like '%:reset:%'`));
+
+    // Leftover proposals from an earlier run would clutter a fresh demo.
+    await ctx.db.update(approvals).set({ status: "rejected", decidedAt: ctx.now() })
+      .where(and(eq(approvals.networkId, network.id), eq(approvals.status, "pending")));
 
     const candidates = await ctx.db.select({ id: obligations.id }).from(obligations).where(and(
       eq(obligations.networkId, network.id), inArray(obligations.status, ARCHIVABLE), sql`${obligations.paypalInvoiceId} is not null`,

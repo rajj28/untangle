@@ -22,6 +22,9 @@ import { eventRoutes } from "./routes/events.ts";
 import { obligationRoutes } from "./routes/obligations.ts";
 import { simRoutes } from "./routes/sim.ts";
 import { aiRoutes } from "./routes/ai.ts";
+import { deskRoutes } from "./routes/desk.ts";
+import { confirmRoutes } from "./routes/confirm.ts";
+import { judgeRoutes } from "./routes/judge.ts";
 import { AiError } from "./ai/gemini.ts";
 import type { Sim } from "./sim/fake-paypal.ts";
 
@@ -50,13 +53,19 @@ function sameToken(given: unknown, expected: string): boolean {
 
 export function buildApp(ctx: AppContext, options: BuildAppOptions = {}): FastifyInstance {
   // trustProxy: Render puts the visitor's address in X-Forwarded-For, and rate limits key on it.
-  const app = Fastify({ logger: false, bodyLimit: 65_536, trustProxy: true });
+  const app = Fastify({ logger: false, bodyLimit: 65_536, trustProxy: true, maxParamLength: 512 });
   const mode = options.mode ?? "sandbox";
   // The demo is public: reads are open, but anything that writes needs the judge access code when one is set.
   const writeToken = ctx.config.demoWriteToken;
   if (writeToken !== undefined) {
     app.addHook("onRequest", async (request, reply) => {
       if (request.method !== "POST" || !request.url.startsWith("/api/")) return;
+      // The desk is a read-only computation (synthetic city rows); it never writes.
+      if (request.url.startsWith("/api/desk/")) return;
+      // Signed confirmation links are self-authorizing capabilities; judges use them to confirm/reject.
+      if (request.url.startsWith("/api/confirm/")) return;
+      // Judge networks are public sandbox playgrounds; their writes are separate, isolated networks.
+      if (request.url.startsWith("/api/judge/")) return;
       if (sameToken(request.headers["x-demo-token"], writeToken)) return;
       return reply.code(401).send({ error: "ACCESS_CODE_REQUIRED", message: "Enter the demo access code to make changes." });
     });
@@ -66,7 +75,9 @@ export function buildApp(ctx: AppContext, options: BuildAppOptions = {}): Fastif
     timeWindow: "1 minute",
     max: (request) => (request.method === "GET" || request.method === "HEAD" ? 600 : 60),
     // PayPal sends webhooks in bursts during a round; their signatures are verified instead.
-    allowList: (request) => request.url.startsWith("/webhooks/"),
+    // RATE_LIMIT_LOOPBACK_OFF=1 lifts the limit for loopback callers only (local demo recordings).
+    allowList: (request) => request.url.startsWith("/webhooks/")
+      || (process.env.RATE_LIMIT_LOOPBACK_OFF === "1" && (request.ip === "127.0.0.1" || request.ip === "::1" || request.ip === "::ffff:127.0.0.1")),
   });
   app.register(healthRoutes, { ctx });
   app.register(networkRoutes, { ctx });
@@ -80,6 +91,9 @@ export function buildApp(ctx: AppContext, options: BuildAppOptions = {}): Fastif
   app.register(streamRoutes, { ctx });
   app.register(auditRoutes, { ctx });
   app.register(aiRoutes, { ctx, ...(options.samplesDir === undefined ? {} : { samplesDir: options.samplesDir }) });
+  app.register(deskRoutes, { ctx });
+  app.register(confirmRoutes, { ctx });
+  app.register(judgeRoutes, { ctx });
   if (options.sim !== undefined) app.register(simRoutes, { ctx, sim: options.sim });
   const hasWeb = options.webRoot !== undefined && existsSync(join(options.webRoot, "index.html"));
   if (hasWeb) {

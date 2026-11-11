@@ -146,6 +146,8 @@ export const obligations = pgTable("obligations", {
   paypalInvoiceId: text("paypal_invoice_id"),
   debtorConfirmedAt: timestamp("debtor_confirmed_at", { withTimezone: true }),
   creditorConfirmedAt: timestamp("creditor_confirmed_at", { withTimezone: true }),
+  /** When an obligation is disputed via a signed confirmation link, the reason given. */
+  disputeReason: text("dispute_reason"),
   protected: boolean("protected").notNull().default(false),
   version: integer("version").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -309,6 +311,13 @@ export const operations = pgTable("operations", {
   statusIndex: index("operations_status_idx").on(table.status),
 }));
 
+export const judgeSessions = pgTable("judge_sessions", {
+  token: text("token").primaryKey(),
+  networkId: uuid("network_id").notNull().references(() => networks.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
 export const events = pgTable("events", {
   seq: bigserial("seq", { mode: "number" }).primaryKey(),
   id: uuid("id").notNull().defaultRandom(),
@@ -352,7 +361,7 @@ export const jobs = pgTable("jobs", {
 }));
 
 export const agentRunStatuses = ["running", "waiting", "completed", "failed"] as const;
-export const approvalStatuses = ["pending", "approved", "rejected", "executed", "failed"] as const;
+export const approvalStatuses = ["pending", "approved", "rejected", "executed", "failed", "blocked"] as const;
 
 /** One orchestrated piece of agent work; its steps live in the event log under stream `agent:<id>`. */
 export const agentRuns = pgTable("agent_runs", {
@@ -383,6 +392,10 @@ export const approvals = pgTable("approvals", {
   payload: jsonb("payload").notNull(),
   status: text("status").notNull().default("pending"),
   result: jsonb("result"),
+  /** When the deterministic guard blocks a proposal: the name of the rule that fired. */
+  blockedRule: text("blocked_rule"),
+  /** The offending excerpt from the evidence that tripped the rule. */
+  blockedExcerpt: text("blocked_excerpt"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   decidedAt: timestamp("decided_at", { withTimezone: true }),
 }, (table) => ({

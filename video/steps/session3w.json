@@ -1,0 +1,16 @@
+[
+ { "note": "The exported audit pack itself, rendered sheet by sheet from the real .xlsx (scripts/workbook-view.mjs)." },
+ { "viewport": [1440, 810, 1.3333333, false] },
+ { "goto": "file:///C:/Users/Acer/untangle/video/recordings/workbook.html" },
+ { "wait": 1500 },
+ { "record": "audit-workbook" },
+ { "wait": 1400 },
+ { "click": { "selector": ".tab", "nth": 1 }, "moveMs": 700 },
+ { "wait": 1300 },
+ { "click": { "selector": ".tab", "nth": 2 }, "moveMs": 600 },
+ { "wait": 1300 },
+ { "click": { "selector": ".tab", "nth": 10 }, "moveMs": 900 },
+ { "wait": 2600 },
+ { "stop": true },
+ { "shot": "after-workbook.png" }
+]

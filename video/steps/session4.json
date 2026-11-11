@@ -1,0 +1,204 @@
+[
+ {
+  "note": "Guardrails on a fresh Main Street: poisoned invoice, phone rejection, live re-plan. Needs the reject->re-plan server fix."
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "note": "reset the street (not recorded)"
+ },
+ {
+  "click": {
+   "text": "Reset demo"
+  }
+ },
+ {
+  "wait": 900
+ },
+ {
+  "click": {
+   "text": "Archive and reset"
+  }
+ },
+ {
+  "waitFor": "fresh invoices",
+  "timeout": 360000
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "note": "poisoned invoice, uploaded as Green Valley Dairy"
+ },
+ {
+  "gotoJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3').then(r => r.json()).then(s => location.origin + '/#/me/' + s.businesses.find(b => b.name === 'Green Valley Dairy').id + '/assistant')"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "scrollTo": "input[type=file]",
+  "block": "center"
+ },
+ {
+  "wait": 800
+ },
+ {
+  "record": "poisoned-invoice"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "click": {
+   "text": "PDF invoice carrying an injected instruction to the AI"
+  },
+  "moveMs": 900
+ },
+ {
+  "waitFor": "injection",
+  "timeout": 240000
+ },
+ {
+  "wait": 600
+ },
+ {
+  "eval": "(() => { const el = [...document.querySelectorAll('li,p')].find(p => p.textContent.includes('injection')); el && el.scrollIntoView({ behavior: 'smooth', block: 'center' }); return !!el; })()"
+ },
+ {
+  "wait": 4500
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-poisoned.png"
+ },
+ {
+  "note": "plan the round: one clearing cycle, held for Lee & Patel (not recorded)"
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/agents"
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "click": {
+   "text": "Run clearing cycle"
+  }
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "waitForJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3/agents/runs').then(r => r.json()).then(runs => runs[0] && runs[0].status !== 'running' ? runs[0].status + ': ' + runs[0].summary : null)",
+  "timeout": 720000
+ },
+ {
+  "note": "clear the mill's confirmation on its freight invoice (demo route, off camera)"
+ },
+ {
+  "eval": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3/obligations').then(r => r.json()).then(rows => rows.find(o => o.status === 'invoiced' && /Freight: October grain/.test(o.description))).then(o => fetch('/api/demo/confirm-request/' + o.id, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' }).then(r => r.json()))"
+ },
+ {
+  "viewport": [
+   390,
+   844,
+   2.5,
+   true
+  ]
+ },
+ {
+  "gotoJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3/obligations').then(r => r.json()).then(rows => rows.find(o => o.status === 'invoiced' && /Freight: October grain/.test(o.description))).then(o => fetch('/api/obligations/' + o.id + '/confirm-links').then(r => r.json())).then(l => location.origin + '/#/confirm/' + l.debtorToken)"
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "record": "confirm-phone"
+ },
+ {
+  "wait": 1800
+ },
+ {
+  "click": {
+   "selector": "textarea"
+  },
+  "moveMs": 800
+ },
+ {
+  "type": "We never got these deliveries."
+ },
+ {
+  "wait": 500
+ },
+ {
+  "click": {
+   "text": "Reject and dispute"
+  },
+  "moveMs": 800
+ },
+ {
+  "waitFor": "disputed",
+  "timeout": 30000
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-reject.png"
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "record": "confirm-replan"
+ },
+ {
+  "waitFor": "Re-planned after a rejection",
+  "timeout": 60000
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "scrollTo": "section",
+  "block": "start"
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-replan.png"
+ }
+]

@@ -38,6 +38,10 @@ export function TryItSection({ playground }: TryItProps): JSX.Element {
           <p className="text-zinc-500 text-lg leading-relaxed">
             Add a few debts between neighbours, then press Untangle. This runs the same clearing engine as the real network, right in your browser.
           </p>
+          <a href="#/judge" className="mt-5 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-700">
+            Try it yourself on a real street
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
         </div>
 
         {/* Playground frame */}

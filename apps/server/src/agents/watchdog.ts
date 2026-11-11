@@ -21,10 +21,11 @@ export async function runWatchdog(ctx: AppContext, runId: string, roundId: strin
   const gemini = requireGemini(ctx);
   const step = stepper(ctx, runId, "watchdog");
   const round = await getRound(ctx, roundId);
+  const heldLoops = round.heldForFraudReview.length;
   const touched = [...new Set([...round.setoffs.map((setoff) => setoff.obligationId), ...round.transfers.flatMap((transfer) => transfer.legs.map((leg) => leg.obligationId))])];
   if (touched.length === 0) {
     await step({ kind: "decision", title: "Nothing to verify in this round" });
-    return { checked: 0, matched: 0, mismatches: [] as string[], disputes: 0, duplicates: 0, paypalCalls: 0 };
+    return { checked: 0, matched: 0, mismatches: [] as string[], disputes: 0, duplicates: 0, paypalCalls: 0, heldLoops };
   }
   const rows = await ctx.db.select().from(obligations).where(and(inArray(obligations.id, touched), isNotNull(obligations.paypalInvoiceId)));
   const members = await networkBusinesses(ctx, round.networkId);
@@ -77,7 +78,10 @@ export async function runWatchdog(ctx: AppContext, runId: string, roundId: strin
     title: mismatches.length === 0 ? `All ${matched} invoices match PayPal; ${duplicates === 0 ? "zero duplicate payments" : `${duplicates} DUPLICATE payment(s)`}${disputes === 0 ? "; no disputes" : `; ${disputes} dispute(s) to look at`}` : `${mismatches.length} invoice(s) differ from PayPal`,
     detail: mismatches.length === 0 ? null : mismatches.slice(0, 5).join("; "),
   });
-  return { checked: rows.length, matched, mismatches, disputes, duplicates, paypalCalls: calls.length };
+  if (heldLoops > 0) {
+    await step({ kind: "decision", title: `${heldLoops} loop(s) were held by the fraud-ring screen in this round's plan` });
+  }
+  return { checked: rows.length, matched, mismatches, disputes, duplicates, paypalCalls: calls.length, heldLoops };
 }
 
 /** Runs the Watchdog on its own, e.g. after a round that was interrupted by a crash. */

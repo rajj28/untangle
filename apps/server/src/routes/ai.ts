@@ -48,7 +48,7 @@ export const aiRoutes: FastifyPluginAsync<{ ctx: AppContext; samplesDir?: string
   app.get<{ Params: { id: string } }>("/api/agents/runs/:id", async (request) => getRunDetail(ctx, requireUuid(request.params.id)));
 
   app.get<{ Params: { id: string }; Querystring: { status?: string } }>("/api/networks/:id/approvals", async (request) => {
-    const status = z.enum(["pending", "approved", "rejected", "executed", "failed"]).optional().parse(request.query.status);
+    const status = z.enum(["pending", "approved", "rejected", "executed", "failed", "blocked"]).optional().parse(request.query.status);
     return listApprovals(ctx, requireUuid(request.params.id), status);
   });
   app.post<{ Params: { id: string } }>("/api/approvals/:id/approve", aiLimit, async (request) => decideApproval(ctx, requireUuid(request.params.id), "approve"));

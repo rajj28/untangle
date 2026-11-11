@@ -1,0 +1,46 @@
+[
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/ledger"
+ },
+ {
+  "wait": 3000
+ },
+ {
+  "gotoJs": "fetch('/api/networks/04a38f32-1688-4294-8b70-95f591245cd3/obligations').then(r => r.json()).then(async rows => { for (const o of rows) { const p = await fetch('/api/obligations/' + o.id + '/paypal').then(r => r.json()); if (p.payerViewUrl && p.payments.length) return p.payerViewUrl; } return null; })"
+ },
+ {
+  "wait": 9000
+ },
+ {
+  "eval": "(() => { const st=document.createElement('style'); st.textContent='#ccpaCookieBanner,.cdn-consent-css{display:none!important}'; document.head.appendChild(st); return !!document.getElementById('ccpaCookieBanner'); })()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "record": "paypal-says"
+ },
+ {
+  "wait": 3000
+ },
+ {
+  "eval": "window.scrollBy({ top: 260, behavior: 'smooth' })"
+ },
+ {
+  "wait": 4500
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-paypal-says.png"
+ }
+]

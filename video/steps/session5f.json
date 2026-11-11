@@ -1,0 +1,22 @@
+[
+ { "note": "City fraud screen: filter Screen = 1 through AG Grid's own header filter, then drill into a held ring." },
+ { "viewport": [1440, 810, 1.3333333, false] },
+ { "goto": "http://localhost:3000/#/desk/city" },
+ { "waitFor": "Sector / Business", "timeout": 30000 },
+ { "wait": 6000 },
+ { "record": "city-fraud" },
+ { "wait": 1000 },
+ { "click": { "selector": ".ag-header-cell[col-id=\"screen\"] .ag-header-cell-filter-button" }, "moveMs": 900 },
+ { "wait": 900 },
+ { "click": { "selector": ".ag-filter-body input" }, "moveMs": 500 },
+ { "type": "1" },
+ { "wait": 2500 },
+ { "key": "Escape" },
+ { "wait": 1200 },
+ { "click": { "selector": ".ag-row[row-index=\"0\"] .ag-group-contracted" }, "moveMs": 800 },
+ { "wait": 2500 },
+ { "click": { "selector": ".ag-row[row-index=\"1\"] .ag-group-contracted" }, "moveMs": 700 },
+ { "wait": 3500 },
+ { "stop": true },
+ { "shot": "after-fraud.png" }
+]

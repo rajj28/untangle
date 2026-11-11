@@ -6,6 +6,7 @@ import { untangleCity } from "./city.ts";
 import type { CityRequest, CityResult } from "./city.ts";
 import { arc, bendFor, dollars, layout, nextDebtId, planStreet, PRESET, randomStreet, shopById, SHOPS } from "./street.ts";
 import type { Debt, Point } from "./street.ts";
+import { NetProofVerifier } from "../../components/NetProofVerifier.tsx";
 
 type Phase = "before" | "loops" | "after";
 
@@ -343,6 +344,9 @@ function CityPlayground(): JSX.Element {
 
       <div aria-live="polite">
         {state.status === "done" && <CityResultView result={state.result} />}
+      </div>
+      <div className="mx-auto w-full max-w-2xl">
+        <NetProofVerifier variant="panel" />
       </div>
     </div>
   );

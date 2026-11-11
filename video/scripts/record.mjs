@@ -3,7 +3,7 @@
 // target and ripples, because headless Chrome draws no pointer.
 //
 // Usage: node scripts/record.mjs steps/<session>.json
-// Steps: {viewport:[w,h,dpr,mobile]} {goto:url} {wait:ms} {waitFor:"text", timeout} {click:{text|selector}, moveMs}
+// Steps: {viewport:[w,h,dpr,mobile]} {goto:url} {gotoJs:"async expr returning url"} {wait:ms} {waitFor:"text", timeout} {click:{text|selector}, moveMs, double}
 //        {type:"text"} {key:"Enter"} {scroll:y} {scrollTo:selector} {eval:"js"} {record:"clip"} {stop:true} {shot:"file.png"}
 import { spawn } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -20,6 +20,7 @@ const chrome = spawn(CHROME, [
   "--force-color-profile=srgb", "--font-render-hinting=none", `--user-data-dir=${resolve("recordings/.chrome")}`, "--window-size=1920,1080", "about:blank",
 ], { stdio: "ignore" });
 
+const KEYCODE = { Enter: 13, Escape: 27, Tab: 9, Backspace: 8, ArrowDown: 40, ArrowUp: 38 };
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 let target;
 for (let i = 0; i < 60 && !target; i++) {
@@ -40,7 +41,7 @@ ws.addEventListener("message", (event) => {
     send("Page.screencastFrameAck", { sessionId: msg.params.sessionId });
     if (clip) clip.latest = Buffer.from(msg.params.data, "base64");
   }
-  if (msg.method === "Runtime.exceptionThrown") problems.push(`EXCEPTION ${msg.params.exceptionDetails.exception?.description ?? msg.params.exceptionDetails.text}`.slice(0, 300));
+  if (msg.method === "Runtime.exceptionThrown") problems.push(`EXCEPTION ${msg.params.exceptionDetails.exception?.description ?? msg.params.exceptionDetails.text}`.slice(0, 1500));
   if (msg.method === "Network.responseReceived" && msg.params.response.status >= 400) problems.push(`HTTP ${msg.params.response.status} ${msg.params.response.url}`);
 });
 const send = (method, params = {}) => new Promise((done) => {
@@ -107,7 +108,8 @@ const FIND = (spec) => `(() => {
   }
   if (!el) return null;
   const rect0 = el.getBoundingClientRect();
-  if (rect0.top < 70 || rect0.bottom > innerHeight - 20) el.scrollIntoView({ block: "center", behavior: "instant" });
+  const clipped = (() => { for (let p = el.parentElement; p; p = p.parentElement) { const r = p.getBoundingClientRect(); if (p.scrollWidth > p.clientWidth && (rect0.left < r.left || rect0.right > r.right)) return true; } return rect0.left < 0 || rect0.right > innerWidth; })();
+  if (rect0.top < 70 || rect0.bottom > innerHeight - 20 || clipped) el.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
   const rect = el.getBoundingClientRect();
   return { x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2), label: (el.textContent || el.placeholder || el.tagName).trim().slice(0, 50) };
 })()`;
@@ -165,6 +167,11 @@ for (const step of steps) {
       viewport = { width, height, dpr, mobile };
       await applyViewport();
     }
+    if (step.gotoJs) {
+      const url = await evaluate(`(async () => { try { return await (${step.gotoJs}); } catch (e) { return null; } })()`);
+      console.log(`gotoJs -> ${url}`);
+      if (url) { await send("Page.navigate", { url }); await sleep(300); await evaluate(CURSOR); }
+    }
     if (step.goto) { await send("Page.navigate", { url: step.goto }); await sleep(300); await evaluate(CURSOR); }
     if (step.record) await startClip(step.record);
     if (step.wait) await sleep(step.wait);
@@ -201,6 +208,12 @@ for (const step of steps) {
       await send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
       await sleep(70);
       await send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+      if (step.double) {
+        await sleep(60);
+        await send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 2 });
+        await sleep(50);
+        await send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 2 });
+      }
       console.log(`clicked ${point.label}`);
       await sleep(step.after ?? 400);
     }
@@ -215,11 +228,13 @@ for (const step of steps) {
       }
     }
     if (step.key) {
-      await send("Input.dispatchKeyEvent", { type: "keyDown", key: step.key, code: step.key, windowsVirtualKeyCode: step.key === "Enter" ? 13 : 0 });
-      await send("Input.dispatchKeyEvent", { type: "keyUp", key: step.key, code: step.key, windowsVirtualKeyCode: step.key === "Enter" ? 13 : 0 });
+      await send("Input.dispatchKeyEvent", { type: "keyDown", key: step.key, code: step.key, windowsVirtualKeyCode: KEYCODE[step.key] ?? 0 });
+      await send("Input.dispatchKeyEvent", { type: "keyUp", key: step.key, code: step.key, windowsVirtualKeyCode: KEYCODE[step.key] ?? 0 });
     }
     if (step.scroll !== undefined) await evaluate(`window.scrollTo({ top: ${step.scroll}, behavior: "smooth" })`);
     if (step.scrollTo) await evaluate(`document.querySelector(${JSON.stringify(step.scrollTo)})?.scrollIntoView({ behavior: "smooth", block: ${JSON.stringify(step.block ?? "start")} })`);
+    // Save browser downloads (e.g. the real audit-pack .xlsx) into recordings/<dir>.
+    if (step.downloads) await send("Page.setDownloadBehavior", { behavior: "allow", downloadPath: join(ROOT, step.downloads).replace(/\//g, "\\") });
     if (step.eval) console.log("eval:", JSON.stringify(await evaluate(step.eval)).slice(0, 400));
     if (step.shot) {
       const shot = await send("Page.captureScreenshot", { format: "png" });

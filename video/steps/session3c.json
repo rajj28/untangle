@@ -1,0 +1,89 @@
+[
+ {
+  "note": "Proof + AG Grid clips on the settled Main Street round. Desktop 1440x810 @1.333 = 1080p."
+ },
+ {
+  "viewport": [
+   1440,
+   810,
+   1.3333333,
+   false
+  ]
+ },
+ {
+  "downloads": "downloads"
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "click": {
+   "text": "Review last round"
+  }
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "record": "aggrid-charts"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "click": {
+   "text": "Chart it"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 5500
+ },
+ {
+  "stop": true
+ },
+ {
+  "shot": "after-charts.png"
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/ledger"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "goto": "http://localhost:3000/#/desk/settlement"
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "click": {
+   "text": "Review last round"
+  }
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "record": "aggrid-audit"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "click": {
+   "text": "Export audit pack"
+  },
+  "moveMs": 900
+ },
+ {
+  "wait": 3500
+ },
+ {
+  "stop": true
+ }
+]

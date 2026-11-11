@@ -7,14 +7,20 @@ import type {
   AuditResult,
   BusEvent,
   Config,
+  ConfirmLinks,
+  ConfirmView,
   EvidenceSample,
   EvidenceView,
   Explanation,
   DisputeObligationPayload,
   DisputeRunResponse,
+  JudgeNetwork,
+  JudgeSessionInfo,
   NetworkSummary,
   ObligationHistory,
   ObligationView,
+  PaypalSays,
+  RecoveryReport,
   RoundListItem,
   RoundView,
   TransferView,
@@ -194,4 +200,17 @@ export const api = {
     post<{ gridState: GridState; explanation: string }>("/api/ai/grid", payload),
   disputeObligation: (obligationId: string, payload: DisputeObligationPayload) =>
     post<DisputeRunResponse>(`/api/obligations/${obligationId}/dispute`, payload),
+  deskRows: (req: unknown) => post<{ rows: unknown[]; lastRow: number }>("/api/desk/rows", req),
+  confirm: (token: string) => get<ConfirmView>(`/api/confirm/${encodeURIComponent(token)}`),
+  confirmDecide: (token: string, body: { decision: "confirm" | "reject"; reason?: string }) =>
+    post<ConfirmView>(`/api/confirm/${encodeURIComponent(token)}`, body),
+  confirmLinks: (obligationId: string) => get<ConfirmLinks>(`/api/obligations/${obligationId}/confirm-links`),
+  requestConfirmationAgain: (obligationId: string) =>
+    post<{ obligationId: string; waitingSide: "debtor" | "creditor" }>(`/api/demo/confirm-request/${obligationId}`, {}),
+  obligationPaypal: (obligationId: string) => get<PaypalSays>(`/api/obligations/${obligationId}/paypal`),
+  roundRecovery: (roundId: string) => get<RecoveryReport>(`/api/rounds/${roundId}/recovery`),
+  judgeStart: () => post<JudgeSessionInfo>("/api/judge/network"),
+  judgeNetwork: (token: string) => get<JudgeNetwork>(`/api/judge/network/${encodeURIComponent(token)}`),
+  judgeAddObligation: (token: string, body: { direction: "owe" | "owed"; counterpartyId: string; amountMinor: number; description: string }) =>
+    post<{ ok: boolean; obligationId: string }>(`/api/judge/network/${encodeURIComponent(token)}/obligations`, body),
 };

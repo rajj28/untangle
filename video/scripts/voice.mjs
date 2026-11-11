@@ -3,7 +3,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const { style, voice, lines } = JSON.parse(readFileSync("voice/lines.json", "utf8"));
-const models = ["gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts"];
+const models = process.env.TTS_MODELS ? process.env.TTS_MODELS.split(",") : ["gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts"];
 const only = process.argv.slice(2);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

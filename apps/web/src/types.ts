@@ -1,3 +1,5 @@
+import type { Loop } from "@untangle/engine";
+
 export interface Config {
   mode: "sandbox" | "sim";
   demo: boolean;
@@ -47,6 +49,9 @@ export interface ObligationView {
   paypalInvoiceId: string | null;
   protected: boolean;
   dueOn: string | null;
+  debtorConfirmedAt: string | null;
+  creditorConfirmedAt: string | null;
+  disputeReason: string | null;
 }
 
 export interface RoundStats {
@@ -96,6 +101,8 @@ export interface StatementBody {
   networkId: string;
   currency: string;
   planHash: string;
+  netBefore: number;
+  netAfter: number;
   setoffs: {
     obligationId: string;
     invoiceId: string;
@@ -122,6 +129,9 @@ export interface RoundView {
   statements: { businessId: string; statementHash: string; body: StatementBody }[];
   consents: { businessId: string; method: string; createdAt: string | Date }[];
   pendingConsents: string[];
+  heldForConfirmation: { obligationId: string; missingSide: "debtor" | "creditor" }[];
+  heldForFraudReview: { loopId: string; reasons: string[]; memberIds: readonly string[] }[];
+  replanned: { brokeLoops: Loop[]; newLoops: Loop[] } | null;
 }
 
 export interface RoundListItem {
@@ -221,8 +231,10 @@ export interface Approval {
   title: string;
   detail: string;
   payload: unknown;
-  status: "pending" | "approved" | "rejected" | "executed" | "failed";
+  status: "pending" | "approved" | "rejected" | "executed" | "failed" | "blocked";
   result: unknown | null;
+  blockedRule: string | null;
+  blockedExcerpt: string | null;
   createdAt: string;
   decidedAt: string | null;
 }
@@ -300,4 +312,76 @@ export interface DisputeObligationPayload {
 
 export interface DisputeRunResponse {
   runId: string;
+}
+
+export interface ConfirmView {
+  obligationId: string;
+  side: "debtor" | "creditor";
+  businessId: string;
+  businessName: string;
+  debtor: { id: string; name: string };
+  creditor: { id: string; name: string };
+  amountMinor: number;
+  currency: string;
+  description: string | null;
+  status: string;
+  disputeReason: string | null;
+  debtorConfirmed: boolean;
+  creditorConfirmed: boolean;
+  evidenceSummary: string | null;
+}
+
+export interface ConfirmLinks {
+  obligationId: string;
+  debtorToken: string;
+  creditorToken: string;
+}
+
+export interface NetPositionVerifyResult {
+  networksChecked: number;
+  millis: number;
+  maxAbsDelta: number;
+  minCashPassed: number;
+  minCashTotal: number;
+}
+
+export interface PaypalPaymentView {
+  method: string | null;
+  type: string | null;
+  amountMinor: number | null;
+  date: string | null;
+  note: string | null;
+}
+
+export interface PaypalSays {
+  obligationId: string;
+  connected: boolean;
+  status: string | null;
+  amountMinor: number | null;
+  dueDate: string | null;
+  payerViewUrl: string | null;
+  payments: PaypalPaymentView[];
+}
+
+export interface RecoveryReport {
+  roundId: string;
+  plannedPayments: number;
+  paymentsFoundAlreadyOnPaypal: number;
+  paymentsResumed: number;
+  paymentsRolledBack: number;
+  paidTwice: number;
+}
+
+export interface JudgeSessionInfo {
+  token: string;
+  networkId: string;
+  youBusinessId: string | null;
+  qrPayload: string;
+}
+
+export interface JudgeNetwork {
+  network: NetworkSummary;
+  obligations: ObligationView[];
+  youBusinessId: string | null;
+  expiresAt: string;
 }

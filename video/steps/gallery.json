@@ -1,0 +1,17 @@
+[
+ { "note": "Devpost gallery stills: 1440x860 @2x, cursor hidden, fresh Main Street plan (12.8x)." },
+ { "viewport": [1440, 860, 2, false] },
+ { "goto": "http://localhost:3000/#/" }, { "wait": 4500 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/landing-hero.png" },
+ { "scrollTo": "#try" }, { "wait": 1500 }, { "eval": "window.scrollBy(0, 30); 1" }, { "wait": 900 },
+ { "click": { "selector": ".pg-untangle" }, "moveMs": 300 }, { "wait": 6000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/playground-street.png" },
+ { "click": { "text": "A whole city" } }, { "wait": 500 }, { "click": { "text": "10,000 businesses" } }, { "wait": 400 },
+ { "click": { "text": "Untangle the city" } }, { "waitFor": "on this device", "timeout": 30000 }, { "wait": 2500 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/playground-city.png" },
+ { "goto": "http://localhost:3000/#/desk/ledger" }, { "wait": 8000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/desk-ledger.png" },
+ { "goto": "http://localhost:3000/#/desk/settlement" }, { "wait": 8000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/desk-settlement.png" },
+ { "goto": "http://localhost:3000/#/desk/agents" }, { "wait": 7000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/desk-agents.png" },
+ { "goto": "http://localhost:3000/#/desk/network" }, { "wait": 7000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/desk-network.png" },
+ { "goto": "http://localhost:3000/#/desk/matrix" }, { "wait": 7000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/desk-matrix.png" },
+ { "goto": "http://localhost:3000/#/desk/activity" }, { "wait": 14000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/desk-activity.png" },
+ { "goto": "http://localhost:3000/#/me/0da180a8-a127-44b4-b139-0684a2eb9b87/home" }, { "wait": 8000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/cafe-home.png" },
+ { "goto": "http://localhost:3000/#/me/0da180a8-a127-44b4-b139-0684a2eb9b87/assistant" }, { "wait": 8000 }, { "eval": "document.querySelectorAll(\"#__cursor,#__ripple\").forEach(e=>e.style.display=\"none\"); 1" }, { "shot": "gallery/cafe-assistant.png" }
+]

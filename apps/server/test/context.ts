@@ -28,6 +28,7 @@ export async function makeTestContext(options: { town?: "trio" | "main-street"; 
     demoMode: true,
     networkName: "Main Street",
     currency: "USD",
+    confirmSecret: Buffer.from("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "hex"),
     businesses: town === "main-street" ? mainStreetBusinesses.map((business) => {
       const slug = business.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       return { slot: business.slot, name: business.name, email: `${slug}@sim.untangle.test`, clientId: `sim-client-${business.slot}`, clientSecret: `sim-secret-${business.slot}` };
@@ -75,9 +76,9 @@ export async function makeTestContext(options: { town?: "trio" | "main-street"; 
     invoiceB = sim.createSentInvoice("trucker@example.test", "mill@example.test", 2400);
     invoiceC = sim.createSentInvoice("bakery@example.test", "trucker@example.test", 2800);
     const [a, b, c] = await db.insert(obligations).values([
-      { networkId: network, debtorId: businessesBySlot[1]!, creditorId: businessesBySlot[2]!, amountMinor: 3000, outstandingMinor: 3000, currency: "USD", status: "invoiced", paypalInvoiceId: invoiceA },
-      { networkId: network, debtorId: businessesBySlot[2]!, creditorId: businessesBySlot[3]!, amountMinor: 2400, outstandingMinor: 2400, currency: "USD", status: "invoiced", paypalInvoiceId: invoiceB },
-      { networkId: network, debtorId: businessesBySlot[3]!, creditorId: businessesBySlot[1]!, amountMinor: 2800, outstandingMinor: 2800, currency: "USD", status: "invoiced", paypalInvoiceId: invoiceC },
+      { networkId: network, debtorId: businessesBySlot[1]!, creditorId: businessesBySlot[2]!, amountMinor: 3000, outstandingMinor: 3000, currency: "USD", status: "invoiced", paypalInvoiceId: invoiceA, debtorConfirmedAt: new Date(), creditorConfirmedAt: new Date() },
+      { networkId: network, debtorId: businessesBySlot[2]!, creditorId: businessesBySlot[3]!, amountMinor: 2400, outstandingMinor: 2400, currency: "USD", status: "invoiced", paypalInvoiceId: invoiceB, debtorConfirmedAt: new Date(), creditorConfirmedAt: new Date() },
+      { networkId: network, debtorId: businessesBySlot[3]!, creditorId: businessesBySlot[1]!, amountMinor: 2800, outstandingMinor: 2800, currency: "USD", status: "invoiced", paypalInvoiceId: invoiceC, debtorConfirmedAt: new Date(), creditorConfirmedAt: new Date() },
     ]).returning();
     if (a === undefined || b === undefined || c === undefined) throw new Error("test obligations were not inserted");
     obligationA = a.id;
