@@ -53,6 +53,10 @@ No agent can move money directly. Agents propose; the engine decides; owners sig
 
 Node + TypeScript, Postgres (Neon) via drizzle, React 19, AG Grid 36 Enterprise, TanStack Query, Tailwind CSS 4, Vite, Vitest.
 
+## Live demo
+
+https://untangle-5isb.onrender.com (PayPal sandbox, free Render plan; the first load after idle can take about 50 seconds).
+
 ## Run it locally
 
 Prerequisites: Node 22+ and pnpm.

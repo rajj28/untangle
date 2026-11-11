@@ -13,7 +13,7 @@ jobs:
       - name: Ping health endpoint
         run: |
           for i in 1 2 3; do
-            if curl -fsS https://untangle-5isb.onrender.com/api/health > /dev/null; then
+            if curl -fsS https://untangle-5isb.onrender.com/healthz > /dev/null; then
               echo "health check passed (attempt $i)"
               exit 0
             fi
